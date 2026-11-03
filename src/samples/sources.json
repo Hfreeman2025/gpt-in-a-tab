@@ -1,0 +1,79 @@
+{
+  "sonnets": {
+    "books": [
+      {
+        "ebook": 1041,
+        "title": "Shakespeare's Sonnets",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1041/pg1041.txt",
+        "page": "https://www.gutenberg.org/ebooks/1041",
+        "characters": 96212
+      }
+    ],
+    "fetched": "2026-11-01",
+    "characters": 96212,
+    "sha256": "a6596cd7fcf884d836e83d1935ff8a9ae3dfd038cf302e577934d756dd45c8f1"
+  },
+  "alice": {
+    "books": [
+      {
+        "ebook": 11,
+        "title": "Alice's Adventures in Wonderland",
+        "author": "Lewis Carroll",
+        "url": "https://www.gutenberg.org/cache/epub/11/pg11.txt",
+        "page": "https://www.gutenberg.org/ebooks/11",
+        "characters": 144082
+      }
+    ],
+    "fetched": "2026-11-01",
+    "characters": 144082,
+    "sha256": "3598caf916fd363533d54c551ddd087a8f3ce2e76f5c3b30ba102a976ca6e3db"
+  },
+  "tragedies": {
+    "books": [
+      {
+        "ebook": 1524,
+        "title": "Hamlet",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1524/pg1524.txt",
+        "page": "https://www.gutenberg.org/ebooks/1524",
+        "characters": 177169
+      },
+      {
+        "ebook": 1533,
+        "title": "Macbeth",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1533/pg1533.txt",
+        "page": "https://www.gutenberg.org/ebooks/1533",
+        "characters": 104451
+      },
+      {
+        "ebook": 1513,
+        "title": "Romeo and Juliet",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1513/pg1513.txt",
+        "page": "https://www.gutenberg.org/ebooks/1513",
+        "characters": 142440
+      },
+      {
+        "ebook": 1531,
+        "title": "Othello",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1531/pg1531.txt",
+        "page": "https://www.gutenberg.org/ebooks/1531",
+        "characters": 153607
+      },
+      {
+        "ebook": 1532,
+        "title": "King Lear",
+        "author": "William Shakespeare",
+        "url": "https://www.gutenberg.org/cache/epub/1532/pg1532.txt",
+        "page": "https://www.gutenberg.org/ebooks/1532",
+        "characters": 155331
+      }
+    ],
+    "fetched": "2026-11-01",
+    "characters": 733010,
+    "sha256": "2b346d96da21e529e7ec44ecf82bb61ba148f968ed0bc7424bc49bec5e5a65d4"
+  }
+}

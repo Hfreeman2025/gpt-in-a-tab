@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>GPT in a tab</title>
+    <meta name="description" content="A small transformer learning to write, from scratch, on your GPU. Drag the cursor back through training to replay its mind, from noise to verse." />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#121314" />
+    <meta property="og:title" content="GPT in a tab" />
+    <meta property="og:description" content="A small transformer learning to write, from scratch, on your GPU. Every kernel hand-written WebGPU." />
+    <meta property="og:image" content="og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="preload" href="fonts/b612-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/b612-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/b612-700.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face { font-family: 'B612'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-400.woff2) format('woff2'); }
+      @font-face { font-family: 'B612'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-700.woff2) format('woff2'); }
+      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-mono-400.woff2) format('woff2'); }
+      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-mono-700.woff2) format('woff2'); }
+      /* B612 Mono draws ’ and ‘ as slanted ticks that read as accents; take the quotes from B612. */
+      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-400.woff2) format('woff2'); unicode-range: U+2018-201F; }
+      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-700.woff2) format('woff2'); unicode-range: U+2018-201F; }
+    </style>
+    <link rel="stylesheet" href="/src/ui/styles.css" />
+  </head>
+  <body>
+    <div class="instrument" id="instrument">
+      <header class="topbar">
+        <h1 class="name">GPT in a tab</h1>
+        <p class="what" id="what">A small transformer learning to write like the text on the right, from scratch, on your GPU.</p>
+        <p class="device" id="device">Checking for WebGPU…</p>
+      </header>
+
+      <section class="screen" aria-label="Screen">
+        <div class="modes" id="modes" role="tablist" aria-label="What the screen shows">
+          <button type="button" role="tab" class="mode" id="mode-train" aria-selected="true" aria-controls="pane-train">Train</button>
+          <button type="button" role="tab" class="mode" id="mode-heads" aria-selected="false" aria-controls="pane-heads" tabindex="-1">Heads</button>
+          <button type="button" role="tab" class="mode" id="mode-features" aria-selected="false" aria-controls="pane-features" tabindex="-1">Features</button>
+          <span class="mode-note" id="mode-note"></span>
+        </div>
+
+        <div class="pane pane-train" id="pane-train" role="tabpanel" aria-labelledby="mode-train">
+          <div class="decode">
+            <div class="strip">
+              <span class="strip-label">Output</span>
+              <label class="field field--prompt">
+                <span class="field-label">prompt</span>
+                <input id="prompt" type="text" autocomplete="off" spellcheck="false" maxlength="120" placeholder="a beginning, if you like" />
+              </label>
+              <label class="field">
+                <span class="field-label">temp</span>
+                <input id="temp" type="range" min="0" max="1.5" step="0.05" value="0.8" aria-describedby="temp-out" />
+                <output id="temp-out" for="temp">0.80</output>
+              </label>
+              <span class="where" id="where" aria-live="polite">loading</span>
+            </div>
+            <div class="text" id="text" aria-live="off">
+              <div class="text-body" id="text-body"><span class="text-empty">Loading the instrument…</span></div>
+              <p class="text-note" id="text-note"></p>
+            </div>
+          </div>
+
+          <div class="trace">
+            <div class="strip strip--trace">
+              <span class="ch ch1">CH1 training loss</span>
+              <span class="ch ch2">CH2 held-out</span>
+              <span class="ch ch3">CH3 learning rate</span>
+              <span class="ch ch4">CH4 copy loss</span>
+              <span class="ch ref" id="ref-legend" hidden>REF recorded run</span>
+              <span class="scale" id="scale"></span>
+              <button type="button" class="key key--small" id="live" disabled>Live</button>
+            </div>
+            <div class="trace-frame">
+              <canvas id="scope" tabindex="0" role="slider" aria-label="Training cursor: the step whose text is shown. Under the trace, one lane per attention head: orange where it copies, white where it attends to the previous character." aria-valuemin="0" aria-valuenow="0" aria-valuetext="step 0"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane pane-heads" id="pane-heads" role="tabpanel" aria-labelledby="mode-heads" hidden>
+          <div class="strip">
+            <span class="strip-label">Heads</span>
+            <span class="strip-note" id="heads-note"></span>
+            <span id="heads-switch"></span>
+          </div>
+          <div class="heads-body">
+            <div class="head-grid" id="head-grid"></div>
+            <figure class="pattern">
+              <canvas id="pattern" width="128" height="128" aria-label="Attention of the chosen head on the induction test"></canvas>
+              <figcaption id="pattern-caption"></figcaption>
+            </figure>
+          </div>
+          <div class="strip">
+            <span class="strip-label">Knock out</span>
+            <span class="strip-note">Click a head to look at it; shift-click to silence it while the model writes</span>
+          </div>
+          <div class="ko-body">
+            <div class="ko-table" id="ko-table"></div>
+            <div class="ko-writing">
+              <div class="copy-demo">
+                <p class="compare-label">Copying: random characters, shown twice, then continued greedily (right in green)</p>
+                <p class="copy-prompt" id="copy-prompt"></p>
+                <p class="copy-line"><span class="copy-who">as trained</span><span class="copy-text" id="copy-base"></span></p>
+                <p class="copy-line"><span class="copy-who" id="copy-off-label">knocked out</span><span class="copy-text" id="copy-off"></span></p>
+              </div>
+              <div class="compare">
+                <div><p class="compare-label">Writing, as trained</p><pre class="compare-text" id="ko-base"></pre></div>
+                <div><p class="compare-label" id="ko-write-label"></p><pre class="compare-text" id="ko-write"></pre></div>
+              </div>
+              <div id="ko-gate"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane pane-features" id="pane-features" role="tabpanel" aria-labelledby="mode-features" hidden>
+          <div class="strip">
+            <span class="strip-label">Features</span>
+            <span class="strip-note">A sparse autoencoder’s dictionary of the residual stream</span>
+            <span id="features-switch"></span>
+          </div>
+          <div class="sae-status" id="sae-status"></div>
+          <div class="features-body">
+            <div class="feature-side">
+              <div class="feature-tools">
+                <label class="sr-only" for="feature-filter">Find a feature</label>
+                <input id="feature-filter" type="search" placeholder="find: a label, a character, #id" autocomplete="off" spellcheck="false" />
+                <span class="feature-count" id="feature-count"></span>
+              </div>
+              <div class="feature-list" id="feature-list" role="listbox" aria-label="Features"></div>
+            </div>
+            <div class="feature-detail" id="feature-detail" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="Controls and measurements">
+        <button type="button" class="runstop" id="runstop" data-state="arming" disabled>
+          <span class="runstop-label" id="runstop-label">Arming</span>
+          <span class="runstop-state" id="runstop-state"></span>
+        </button>
+
+        <dl class="readouts" id="readouts">
+          <div><dt>Step</dt><dd id="r-step">0</dd></div>
+          <div><dt>Time</dt><dd id="r-time">0.0 s</dd></div>
+          <div><dt><span class="l">Tokens/s</span><span class="s">Tok/s</span></dt><dd id="r-tps">–</dd></div>
+          <div><dt>Passes</dt><dd id="r-passes">0.0</dd></div>
+          <div class="ch1"><dt>Loss</dt><dd id="r-loss">–</dd></div>
+          <div class="ch2"><dt><span class="l">Held-out</span><span class="s">Held</span></dt><dd id="r-val">–</dd></div>
+          <div class="ch3"><dt><span class="l">Learning rate</span><span class="s">LR</span></dt><dd id="r-lr">–</dd></div>
+          <div><dt><span class="l">Grad norm</span><span class="s">Grad</span></dt><dd id="r-grad">–</dd></div>
+        </dl>
+
+        <section class="induction" aria-labelledby="induction-label">
+          <div class="strip">
+            <span class="strip-label" id="induction-label">Induction</span>
+            <span class="strip-note">the copying test, every 20 steps</span>
+          </div>
+          <div class="moment" id="moment" aria-live="polite"></div>
+        </section>
+
+        <section class="source" aria-labelledby="source-label">
+          <div class="strip">
+            <span class="strip-label" id="source-label">Source</span>
+            <span class="source-count" id="source-count"></span>
+          </div>
+          <div class="softkeys" id="softkeys" role="radiogroup" aria-label="Text to learn from"></div>
+          <label class="sr-only" for="source-text">Training text</label>
+          <textarea id="source-text" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+          <p class="source-credit" id="source-credit">Loading the text…</p>
+        </section>
+      </aside>
+    </div>
+
+    <main class="manual" id="manual">
+      <section class="manual-section" aria-labelledby="reading-head">
+        <h2 id="reading-head">Reading the instrument</h2>
+        <div class="manual-cols">
+          <p><b>Output</b> is what the model writes at the cursor’s step, drawn with the same random numbers every time, so differences between steps are the model’s alone. A character’s brightness is how sure the model was of it. Point at (or tap) a character to light up what the model looked at when it wrote it; pick a head under <b>Heads</b> to see that head alone.</p>
+          <p><b>The trace</b> is the run. Yellow is the loss on the text it trains on; cyan, on a tenth it never trains on; magenta, the learning rate, on its own scale; blue, the loss on the second copy of the induction test. The dashed line across is chance. Under the trace, one lane per attention head on the same time base: orange where the head copies, white where it looks at the previous character. <b>REF</b>, dim, is a recorded run of this same code.</p>
+          <p><b>The induction moment.</b> Every 20 steps the model reads random characters shown twice. Nothing about them can be memorised, so the only way to predict the second copy is to find where the current character appeared before and copy what came next: an induction head. When one appears, the copy loss falls off a cliff, and the moment is written on the trace.</p>
+          <p><b>Heads</b> takes the trained model apart. Each head’s pattern on the test shows its job: a stripe one step under the diagonal is a previous-character head; a stripe half a window back is an induction head. Knocking a head out (setting its output to zero) shows what the model loses; patching a head’s output from a clean run into a corrupted one shows what that head alone carries. Shift-click heads to knock them out while the model writes.</p>
+          <p><b>Features</b> is a sparse autoencoder trained on the model’s residual stream after the run: a dictionary of directions, most of them off at any character. Each feature is shown with the contexts where it fires hardest, and labelled by rule when one rule covers most of them. Pin a feature at a value and the model writes with it held there.</p>
+          <p><b>Live and recorded.</b> Your run is live. The recorded run opens instantly while yours warms up, and stands in for it on devices that cannot train the full model; everything from it is marked recorded. Its weights (2.1 MB) download only if you ask to write with it.</p>
+        </div>
+      </section>
+
+      <section class="manual-section" id="system" aria-labelledby="system-head">
+        <h2 id="system-head">System</h2>
+        <div class="system" id="system-body"></div>
+      </section>
+
+      <section class="manual-section" aria-labelledby="how-head">
+        <h2 id="how-head">How it works</h2>
+        <div class="manual-cols">
+          <p>A character-level GPT: each character is a token, embedded with its position and passed through four transformer blocks of causal multi-head self-attention and a GELU MLP, with layer norm before each, and an output head tied to the token embedding. AdamW, a warm-up and cosine decay, gradient clipping and dropout. One window in four of every batch is random characters repeated, so that copying pays within a minute; on text alone no head learned to copy in 3,000 steps.</p>
+          <p>There is no machine-learning library. Every operation, forward and backward, is a WGSL compute shader written for this page: a tiled matrix multiply through workgroup memory, softmax, layer norm, attention, GELU, cross-entropy and the optimiser; and for the microscope, the induction test’s scoring, per-head knockout and patching, and the sparse autoencoder’s training and analysis. A plain TypeScript copy of the same maths checks every kernel.</p>
+          <p>The induction test and the moment follow Olsson et al., <a href="https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html">In-context Learning and Induction Heads</a> (2022). The sparse autoencoder follows Bricken et al., <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html">Towards Monosemanticity</a> (2023), and Cunningham et al., <a href="https://arxiv.org/abs/2309.08600">Sparse Autoencoders Find Highly Interpretable Features in Language Models</a> (2023). Activation patching as in Meng et al., <a href="https://arxiv.org/abs/2202.05262">Locating and Editing Factual Associations in GPT</a> (2022).</p>
+          <p class="credits" id="credits">Texts from Project Gutenberg (public domain): Shakespeare’s Sonnets (ebook 1041), Alice’s Adventures in Wonderland (11), Hamlet (1524), Macbeth (1533), Romeo and Juliet (1513), Othello (1531) and King Lear (1532); and Webster’s Second New International Dictionary (1934) word list from BSD Unix. Type: B612 and B612 Mono, SIL Open Font Licence. Code: MIT, © 2026 Harry Freeman. Nothing you paste leaves this tab.</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="tip" id="tip" role="tooltip" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
