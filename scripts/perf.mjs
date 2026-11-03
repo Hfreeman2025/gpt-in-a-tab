@@ -22,7 +22,7 @@ await page.addInitScript(() => {
   window.__perf = { fcp: 0, lcp: 0, firstText: 0, ref: 0, moment: 0 };
   const watchRef = () => {
     const el = document.getElementById('ref-legend');
-    if (el && !el.hidden) window.__perf.ref = performance.now();
+    if (el && el.dataset.state === 'ready') window.__perf.ref = performance.now();
     else requestAnimationFrame(watchRef);
   };
   requestAnimationFrame(watchRef);

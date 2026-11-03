@@ -11,7 +11,7 @@ by this code.
 | This project's code | 0.1.0 | MIT (`LICENSE`) | about 120 KB of JavaScript, gzipped | this repository |
 | Recorded run, `public/recorded/run.json`, `features.json` | 2 Nov 2026 | MIT, as part of this project | 94 KB and 223 KB | trained by this code, `npm run record` |
 | Recorded weights, `public/recorded/weights.bin` (model 817,920 and autoencoder 263,296 half-precision values) | 2 Nov 2026 | MIT, as part of this project | 2,162,432 bytes | trained by this code, `npm run record`; fetched only when asked for; not committed (model weights stay out of the repository) |
-| B612 and B612 Mono | Google Fonts release | SIL Open Font Licence 1.1 (`public/fonts/OFL.txt`) | 60 KB | https://github.com/polarsys/b612, downloaded once from Google Fonts |
+| IBM Plex Sans (latin 400, 400 italic, 500, 600), IBM Plex Mono (latin 400, 600), IBM Plex Sans Condensed (latin 500, 600): eight woff2 files in `public/fonts/` | @fontsource 5.3.0 | SIL Open Font Licence 1.1 (`public/fonts/OFL.txt`, © 2019 IBM Corp.) | 166 KB | https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.3.0/files/ (and `ibm-plex-mono`, `ibm-plex-sans-condensed`), downloaded once by `npm run fetch:fonts`; served from this site, no font requests to anyone else |
 | Shakespeare's Sonnets, Alice's Adventures in Wonderland, Hamlet, Macbeth, Romeo and Juliet, Othello, King Lear | fetched 1 Nov 2026 | public domain in the United States (Project Gutenberg) | 1.0 MB of text | https://www.gutenberg.org, ebooks 1041, 11, 1524, 1533, 1513, 1531, 1532 |
 | Webster's Second New International Dictionary word list | BSD Unix `web2` | copyright lapsed (per its README) | 320 KB | `/usr/share/dict/web2` |
 

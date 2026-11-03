@@ -668,10 +668,13 @@ export class Controller {
       };
       this.scope.setReference(ref);
       if (!this.session) this.scope.setShape(run.cfg.nLayer, run.cfg.nHead);
-      $('ref-legend').hidden = false;
+      $('ref-legend').dataset.state = 'ready';
+      $('ref-legend').title = `A recorded run of this same code: ${run.recorded.slice(0, 10)}, ${run.device}`;
       this.micro.setRecorded(run, tok.encode(text), tok.chars, loadRecordedFeatures());
     } catch {
-      // Without the recording the page still trains and dissects its own run.
+      // Without the recording the page still trains and dissects its own run; the legend says so.
+      $('ref-legend').dataset.state = 'missing';
+      $('ref-legend').title = 'The recorded run did not load';
     }
   }
 

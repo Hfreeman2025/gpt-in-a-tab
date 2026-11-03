@@ -20,8 +20,11 @@
   --run: #3fd07f;
   --stop: #ff5a47;
   --cursor: #ffffff;
-  --mono: 'B612 Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --sans: 'B612', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* IBM Plex: Sans reads, Mono records (what the model writes, every measurement), Sans
+     Condensed signs (the wordmark, headings, labels). Weights 400, 500, 600 only. */
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --cond: 'IBM Plex Sans Condensed', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --gap: 10px;
   color-scheme: dark;
 }
@@ -96,7 +99,7 @@ textarea {
 .name {
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -110,8 +113,14 @@ textarea {
   white-space: nowrap;
 }
 
+/* A fixed slot, right-aligned: "Checking for WebGPU…" becomes the device without moving anything. */
 .device {
+  flex: 0 1 26em;
+  min-width: 0;
   margin: 0 0 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
   color: var(--faint);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
@@ -140,7 +149,7 @@ textarea {
 
 .strip-label {
   color: var(--phos);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* ---------------------------------------------------------------- screen */
@@ -415,12 +424,19 @@ output {
   border: 1px dashed var(--dim);
 }
 
-.ref[hidden] {
-  display: none;
+.ref[data-state='pending'] {
+  opacity: 0.45;
+}
+
+.ref[data-state='missing'] {
+  opacity: 0.45;
+  text-decoration: line-through;
 }
 
 .scale {
+  min-width: 17em;
   margin-left: auto;
+  text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--faint);
   letter-spacing: 0;
@@ -454,7 +470,7 @@ output {
   background: var(--bezel-2);
   color: var(--phos);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -501,13 +517,14 @@ output {
 
 .runstop-label {
   font-size: 21px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .runstop-state {
+  min-width: 12em;
   font-size: 12.5px;
   text-align: right;
   white-space: nowrap;
@@ -599,7 +616,7 @@ output {
 
 .readouts dd {
   margin: 0;
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-size: 20px;
   line-height: 1.25;
@@ -635,6 +652,8 @@ output {
 }
 
 .source-count {
+  min-width: 15em;
+  text-align: right;
   margin-left: auto;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -642,10 +661,13 @@ output {
   color: var(--faint);
 }
 
+/* Two rows, sized before the keys exist, so building them moves nothing. */
 .softkeys {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 28px;
   gap: 6px;
+  min-height: calc(2 * 28px + 6px + 14px);
   padding: 8px 8px 6px;
 }
 
@@ -661,7 +683,7 @@ output {
 .softkeys .key[aria-checked='true'] {
   border-color: var(--phos);
   color: var(--phos);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .softkeys .key:disabled[aria-checked='false'] {
@@ -707,6 +729,8 @@ output {
   font-size: 11px;
   line-height: 1.4;
   color: var(--faint);
+  /* Room for two lines before the credit arrives. */
+  min-height: calc(2 * 1.45em + 14px);
 }
 
 .source-credit .warn {
@@ -729,7 +753,7 @@ output {
 .manual-section h2 {
   margin: 0 0 14px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -764,7 +788,7 @@ output {
 .system h3 {
   margin: 0 0 8px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--dim);
@@ -886,7 +910,7 @@ output {
   border-right: 1px solid var(--edge);
   background: none;
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--faint);
@@ -1021,7 +1045,7 @@ output {
 }
 
 .head-name {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 12px;
   color: var(--phos);
 }
@@ -1240,7 +1264,6 @@ table.ko tr.sel th {
 }
 
 .copy-text .score {
-  font-family: var(--sans);
   color: var(--dim);
 }
 
@@ -1443,7 +1466,6 @@ table.ko tr.sel th {
 
 .contexts .num {
   flex: none;
-  font-family: var(--sans);
   font-size: 11px;
 }
 
@@ -1496,7 +1518,9 @@ table.ko tr.sel th {
 
 /* ---------------------------------------------------------------- the induction box */
 
+/* Room for its longest reading, so the panel below never moves as the run goes on. */
 .moment {
+  min-height: 13.5em;
   padding: 8px 12px 10px;
 }
 
@@ -1536,7 +1560,7 @@ table.ko tr.sel th {
   padding: 0 4px;
   border: 1px solid currentColor;
   font-size: 9.5px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   vertical-align: 1px;
 }
@@ -1636,9 +1660,14 @@ table.ko tr.sel th {
     grid-area: label;
   }
 
+  /* Fills its cell (an auto margin would size it to its text, and move it when the text changes). */
   .decode .where {
     grid-area: where;
+    justify-self: stretch;
     width: auto;
+    height: 18px;
+    margin-left: 0;
+    line-height: 18px;
   }
 
   .decode .field {
@@ -1760,4 +1789,85 @@ table.ko tr.sel th {
 
 .manual a:hover {
   text-decoration-color: var(--phos);
+}
+
+/* ---------------------------------------------------------------- type: signs and records */
+
+.name,
+.strip,
+.key,
+.runstop-label,
+.readouts dt,
+.manual-section h2,
+.system h3,
+.mode,
+.switch,
+.head-name,
+.compare-label,
+.sae-metrics dt,
+.badge,
+table.ko th,
+.copy-who {
+  font-family: var(--cond);
+}
+
+.name,
+.strip-label,
+.runstop-label,
+.manual-section h2,
+.system h3,
+.mode,
+.head-name,
+.badge {
+  font-weight: 600;
+}
+
+.strip,
+.key,
+.readouts dt,
+.switch,
+.compare-label,
+.sae-metrics dt,
+table.ko thead th,
+.copy-who {
+  font-weight: 500;
+}
+
+.softkeys .key[aria-checked='true'] {
+  font-weight: 600;
+}
+
+/* Inside a strip of labels: what is typed is the reader's text, what is read out is a record. */
+.strip input,
+.strip .strip-note,
+.strip .heads-what {
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+.where,
+.scale,
+.strip output,
+.source-count,
+.sae-metrics dd,
+.num,
+.fid,
+.fdens,
+.meter span,
+.head-ko,
+.head-pt,
+.feature-count,
+.clamp output {
+  font-family: var(--mono);
+}
+
+.where,
+.scale,
+.strip output {
+  font-weight: 400;
+}
+
+.fd-head b {
+  font-family: var(--mono);
+  font-weight: 600;
 }

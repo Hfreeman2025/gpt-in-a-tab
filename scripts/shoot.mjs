@@ -1,11 +1,11 @@
-// Screenshots of every state of the page, at 1440×900 and 390×844, into shots/v3/.
-//   node scripts/shoot.mjs [desktop] [mobile] [states]
+// Screenshots of every state of the page, at 1440×900 and 390×844, into shots/v3/ (or --out=dir).
+//   node scripts/shoot.mjs [desktop] [mobile] [states] [--out=shots/v3-plex]
 // One browser at a time, muted (see browser.mjs).
 import fs from 'node:fs';
 import path from 'node:path';
 import { launchWithWebGPU, root, startServer } from './browser.mjs';
 
-const out = path.join(root, 'shots/v3');
+const out = path.join(root, process.argv.find((a) => a.startsWith('--out='))?.slice(6) ?? 'shots/v3');
 fs.mkdirSync(out, { recursive: true });
 const wanted = new Set(process.argv.slice(2).filter((a) => !a.startsWith('--')));
 const want = (n) => wanted.size === 0 || wanted.has(n);
@@ -58,7 +58,7 @@ for (const size of ['desktop', 'mobile']) {
   // Reduced motion: nothing starts on its own; the recorded run is already on the trace.
   {
     const { browser, page } = await open(size, '', { reducedMotion: 'reduce' });
-    await until(page, () => document.getElementById('runstop').dataset.state === 'armed' && !document.getElementById('ref-legend').hidden);
+    await until(page, () => document.getElementById('runstop').dataset.state === 'armed' && document.getElementById('ref-legend').dataset.state === 'ready');
     await page.waitForTimeout(400);
     await shot(page, size, '03-armed-reduced-motion');
     await browser.close();

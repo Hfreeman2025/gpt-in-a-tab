@@ -69,6 +69,8 @@ export class Scope {
     private readonly handlers: { scrub(step: number): void; step(delta: number): void; live(): void; scaled(text: string): void },
   ) {
     new ResizeObserver(() => this.draw()).observe(canvas);
+    // Canvas text is drawn in whatever face is ready; draw again once Plex has arrived.
+    void document.fonts?.ready.then(() => this.request());
     canvas.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       this.dragging = true;
@@ -257,7 +259,8 @@ export class Scope {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, g.W, g.H);
     const css = (n: string) => cssVar(n);
-    const label = `10.5px ${css('--sans') || 'sans-serif'}`;
+    // Numbers are records (Plex Mono); names of things are signs (Plex Sans Condensed).
+    const label = `10.5px ${css('--mono') || 'monospace'}`;
 
     // Scales: ten divisions across, as many 50-pixel divisions down as fit.
     const target = Math.max(4, Math.min(8, Math.round(g.h / 52)));
@@ -494,7 +497,7 @@ export class Scope {
       const loss = this.lossAt(this.cursor);
       const held = this.heldOutAt(this.cursor);
       const label = `step ${this.cursor.toLocaleString('en-GB')}${Number.isFinite(loss) ? `  loss ${loss.toFixed(3)}` : ''}${Number.isFinite(held) ? `  held-out ${held.toFixed(3)}` : ''}`;
-      ctx.font = `11.5px ${css('--sans') || 'sans-serif'}`;
+      ctx.font = `11px ${css('--mono') || 'monospace'}`;
       const tw = ctx.measureText(label).width + 12;
       const bx = Math.min(Math.max(px - tw / 2, g.left + 2), g.left + g.w - tw - 2);
       ctx.fillStyle = css('--screen');
@@ -527,7 +530,7 @@ export class Scope {
     const { L, H } = this.shape;
     if (!g.lanes) return;
     const laneY = (k: number) => g.lanesTop + k * g.laneH + Math.floor(k / H) * g.layerGap;
-    ctx.font = `${Math.min(10, g.laneH + 1.5)}px ${css('--sans') || 'sans-serif'}`;
+    ctx.font = `500 ${Math.min(10.5, g.laneH + 2)}px ${css('--cond') || 'sans-serif'}`;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     const att = css('--att-rgb').split(/\s+/).join(',');
@@ -613,15 +616,16 @@ export class Scope {
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
-    const sans = css('--sans') || 'sans-serif';
+    const cond = css('--cond') || 'sans-serif';
+    const mono = css('--mono') || 'monospace';
     const line1 = `${headName(m.head, H)} learned to copy at step ${m.step.toLocaleString('en-GB')}`;
     const drop = m.before ? m.before.copySecond : m.copyFirst;
     const latest = this.copy.length ? this.copy[this.copy.length - 1] : null;
     const now = latest && latest.step > m.step ? latest.value : m.copySecond;
     const line2 = `copy loss ${drop.toFixed(2)} → ${now.toFixed(2)} nats`;
-    ctx.font = `600 12px ${sans}`;
+    ctx.font = `600 13px ${cond}`;
     const w1 = ctx.measureText(line1).width;
-    ctx.font = `11px ${sans}`;
+    ctx.font = `11px ${mono}`;
     const w2 = ctx.measureText(line2).width;
     const tw = Math.max(w1, w2) + 14;
     const right = px + 8 + tw < g.left + g.w;
@@ -634,10 +638,10 @@ export class Scope {
     ctx.strokeRect(Math.round(bx) + 0.5, by + 0.5, Math.round(tw), 37);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.font = `600 12px ${sans}`;
+    ctx.font = `600 13px ${cond}`;
     ctx.fillStyle = css('--att');
     ctx.fillText(line1, bx + 7, by + 12);
-    ctx.font = `11px ${sans}`;
+    ctx.font = `11px ${mono}`;
     ctx.fillStyle = css('--ch4');
     ctx.fillText(line2, bx + 7, by + 27);
     ctx.globalAlpha = 1;

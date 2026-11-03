@@ -203,6 +203,7 @@ machine (load average around 17), so treat these as a busy laptop's numbers.
 | | |
 | --- | --- |
 | first contentful paint | 36 ms |
+| layout shift while loading (`npm run cls`, first 6 s) | 0.0000 at 1440×900 and at 390×844 (it was 0.022 and 0.047 before the type re-set, which also fixed the shifting slots) |
 | the recorded run on the trace | 144 ms after navigation (run.json, 17 KB gzipped) |
 | the model's first text | 0.72 s |
 | the induction moment, live | 26.9 s after navigation, at step 1,500 |
@@ -223,6 +224,7 @@ npm run test:gpu       # kernels against the reference (--browser=webkit for Saf
 npm run test:ui        # lifecycle and microscope, in Chromium
 npm run test:browsers  # Chromium, WebKit, Firefox, one at a time
 npm run perf           # paints, the opener, the moment, frames, dissection, downloads
+npm run cls            # layout shift while the page loads, both sizes
 npm run shots          # every state at both sizes into shots/v3/
 npm run record         # re-record public/recorded/ from this code
 npm run icons          # favicons, and og.png from a real run at its moment
@@ -253,7 +255,7 @@ public/recorded/ the recorded run
 - **Texts:** Project Gutenberg, public domain: ebooks 1041, 11, 1524, 1533, 1513, 1531 and 1532.
   Each was fetched once by `npm run fetch:texts`, with the header and footer stripped; see
   `src/samples/sources.json`.
-- **Type:** B612 and B612 Mono, SIL Open Font Licence 1.1.
+- **Type:** IBM Plex Sans, Plex Mono and Plex Sans Condensed (© IBM, SIL Open Font Licence 1.1), latin subset from @fontsource 5.3.0, self-hosted in `public/fonts/`.
 - **Licences:** everything is listed in `LICENCES.md`.
 
 ## Licence

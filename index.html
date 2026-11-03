@@ -16,17 +16,22 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <link rel="preload" href="fonts/b612-mono-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="fonts/b612-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="fonts/b612-700.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- IBM Plex, latin subset, from @fontsource 5.3.0, served from this site (SIL OFL 1.1, fonts/OFL.txt).
+         Sans reads, Mono records, Sans Condensed signs. The four faces the first screen uses are preloaded,
+         so none of them swaps in after the first paint and moves the layout. -->
+    <link rel="preload" href="fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/ibm-plex-sans-condensed-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/ibm-plex-sans-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
     <style>
-      @font-face { font-family: 'B612'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-400.woff2) format('woff2'); }
-      @font-face { font-family: 'B612'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-700.woff2) format('woff2'); }
-      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-mono-400.woff2) format('woff2'); }
-      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-mono-700.woff2) format('woff2'); }
-      /* B612 Mono draws ’ and ‘ as slanted ticks that read as accents; take the quotes from B612. */
-      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/b612-400.woff2) format('woff2'); unicode-range: U+2018-201F; }
-      @font-face { font-family: 'B612 Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/b612-700.woff2) format('woff2'); unicode-range: U+2018-201F; }
+      @font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Sans'; font-style: italic; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-latin-400-italic.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-latin-500-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/ibm-plex-sans-latin-600-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/ibm-plex-mono-latin-600-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-condensed-latin-500-normal.woff2) format('woff2'); }
+      @font-face { font-family: 'IBM Plex Sans Condensed'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/ibm-plex-sans-condensed-latin-600-normal.woff2) format('woff2'); }
     </style>
     <link rel="stylesheet" href="/src/ui/styles.css" />
   </head>
@@ -73,7 +78,7 @@
               <span class="ch ch2">CH2 held-out</span>
               <span class="ch ch3">CH3 learning rate</span>
               <span class="ch ch4">CH4 copy loss</span>
-              <span class="ch ref" id="ref-legend" hidden>REF recorded run</span>
+              <span class="ch ref" id="ref-legend" data-state="pending" title="A recorded run of this same code, loading">REF recorded run</span>
               <span class="scale" id="scale"></span>
               <button type="button" class="key key--small" id="live" disabled>Live</button>
             </div>
@@ -129,7 +134,7 @@
             <div class="feature-side">
               <div class="feature-tools">
                 <label class="sr-only" for="feature-filter">Find a feature</label>
-                <input id="feature-filter" type="search" placeholder="find: a label, a character, #id" autocomplete="off" spellcheck="false" />
+                <input id="feature-filter" type="search" placeholder="find a label or #id" autocomplete="off" spellcheck="false" />
                 <span class="feature-count" id="feature-count"></span>
               </div>
               <div class="feature-list" id="feature-list" role="listbox" aria-label="Features"></div>
@@ -142,7 +147,7 @@
       <aside class="panel" aria-label="Controls and measurements">
         <button type="button" class="runstop" id="runstop" data-state="arming" disabled>
           <span class="runstop-label" id="runstop-label">Arming</span>
-          <span class="runstop-state" id="runstop-state"></span>
+          <span class="runstop-state" id="runstop-state">loading</span>
         </button>
 
         <dl class="readouts" id="readouts">
@@ -201,7 +206,7 @@
           <p>A character-level GPT: each character is a token, embedded with its position and passed through four transformer blocks of causal multi-head self-attention and a GELU MLP, with layer norm before each, and an output head tied to the token embedding. AdamW, a warm-up and cosine decay, gradient clipping and dropout. One window in four of every batch is random characters repeated, so that copying pays within a minute; on text alone no head learned to copy in 3,000 steps.</p>
           <p>There is no machine-learning library. Every operation, forward and backward, is a WGSL compute shader written for this page: a tiled matrix multiply through workgroup memory, softmax, layer norm, attention, GELU, cross-entropy and the optimiser; and for the microscope, the induction test’s scoring, per-head knockout and patching, and the sparse autoencoder’s training and analysis. A plain TypeScript copy of the same maths checks every kernel.</p>
           <p>The induction test and the moment follow Olsson et al., <a href="https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html">In-context Learning and Induction Heads</a> (2022). The sparse autoencoder follows Bricken et al., <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html">Towards Monosemanticity</a> (2023), and Cunningham et al., <a href="https://arxiv.org/abs/2309.08600">Sparse Autoencoders Find Highly Interpretable Features in Language Models</a> (2023). Activation patching as in Meng et al., <a href="https://arxiv.org/abs/2202.05262">Locating and Editing Factual Associations in GPT</a> (2022).</p>
-          <p class="credits" id="credits">Texts from Project Gutenberg (public domain): Shakespeare’s Sonnets (ebook 1041), Alice’s Adventures in Wonderland (11), Hamlet (1524), Macbeth (1533), Romeo and Juliet (1513), Othello (1531) and King Lear (1532); and Webster’s Second New International Dictionary (1934) word list from BSD Unix. Type: B612 and B612 Mono, SIL Open Font Licence. Code: MIT, © 2026 Harry Freeman. Nothing you paste leaves this tab.</p>
+          <p class="credits" id="credits">Texts from Project Gutenberg (public domain): Shakespeare’s Sonnets (ebook 1041), Alice’s Adventures in Wonderland (11), Hamlet (1524), Macbeth (1533), Romeo and Juliet (1513), Othello (1531) and King Lear (1532); and Webster’s Second New International Dictionary (1934) word list from BSD Unix. Type: IBM Plex Sans, Mono and Sans Condensed, SIL Open Font Licence. Code: MIT, © 2026 Harry Freeman. Nothing you paste leaves this tab.</p>
         </div>
       </section>
     </main>

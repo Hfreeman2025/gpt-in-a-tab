@@ -41,7 +41,7 @@ for (const name of engines) {
     await page.waitForFunction(() => (window.__metrics?.completed ?? 0) > 5 && (window.__metrics?.drawn ?? 0) >= 2, null, { timeout: 90_000 });
     const m = await page.evaluate(() => window.__metrics);
     notes.push(`trains on the ${m.kind.toUpperCase()}: step ${m.completed} after ${((Date.now() - t0) / 1000).toFixed(1)} s, ${Math.round(m.tokensPerSecond).toLocaleString('en-GB')} tokens/s`);
-    await page.waitForFunction(() => !document.getElementById('ref-legend').hidden, null, { timeout: 20_000 });
+    await page.waitForFunction(() => document.getElementById('ref-legend').dataset.state === 'ready', null, { timeout: 20_000 });
     notes.push('recorded run on the trace');
     await page.click('#mode-heads');
     await page.waitForFunction(() => document.querySelectorAll('.head-cell').length >= 4, null, { timeout: 20_000 });

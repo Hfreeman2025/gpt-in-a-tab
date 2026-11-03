@@ -23,7 +23,8 @@
     "fetch:texts": "node scripts/fetch-texts.mjs",
     "fetch:fonts": "node scripts/fetch-fonts.mjs",
     "licences": "node scripts/check-licences.mjs",
-    "record": "node scripts/record.mjs"
+    "record": "node scripts/record.mjs",
+    "cls": "node scripts/cls.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
