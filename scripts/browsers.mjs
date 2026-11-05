@@ -10,7 +10,7 @@ const pw = loadPlaywright();
 const wanted = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const engines = wanted.length ? wanted : ['chromium', 'webkit', 'firefox'];
 const { server, url } = await startServer({ dist: true });
-const shots = path.join(root, 'shots/v3');
+const shots = path.join(root, 'shots');
 fs.mkdirSync(shots, { recursive: true });
 const results = [];
 
@@ -19,7 +19,12 @@ for (const name of engines) {
   const notes = [];
   const args = name === 'chromium' ? ['--enable-unsafe-webgpu', '--enable-gpu', '--ignore-gpu-blocklist', '--use-angle=metal', '--mute-audio'] : [];
   // Muted everywhere: the page plays nothing, and no automated browser on this machine may.
-  const browser = await pw[name].launch({ headless: true, ...(name === 'chromium' ? { channel: 'chromium' } : {}), ...(name === 'firefox' ? { firefoxUserPrefs: { 'media.volume_scale': '0.0' } } : {}), args });
+  const browser = await pw[name].launch({
+    headless: true,
+    ...(name === 'chromium' ? { channel: 'chromium' } : {}),
+    ...(name === 'firefox' ? { firefoxUserPrefs: { 'media.volume_scale': '0.0' } } : {}),
+    args,
+  });
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.on('console', (m) => {
@@ -40,7 +45,9 @@ for (const name of engines) {
     notes.push(`WebGPU: ${gpu}`);
     await page.waitForFunction(() => (window.__metrics?.completed ?? 0) > 5 && (window.__metrics?.drawn ?? 0) >= 2, null, { timeout: 90_000 });
     const m = await page.evaluate(() => window.__metrics);
-    notes.push(`trains on the ${m.kind.toUpperCase()}: step ${m.completed} after ${((Date.now() - t0) / 1000).toFixed(1)} s, ${Math.round(m.tokensPerSecond).toLocaleString('en-GB')} tokens/s`);
+    notes.push(
+      `trains on the ${m.kind.toUpperCase()}: step ${m.completed} after ${((Date.now() - t0) / 1000).toFixed(1)} s, ${Math.round(m.tokensPerSecond).toLocaleString('en-GB')} tokens/s`,
+    );
     await page.waitForFunction(() => document.getElementById('ref-legend').dataset.state === 'ready', null, { timeout: 20_000 });
     notes.push('recorded run on the trace');
     await page.click('#mode-heads');

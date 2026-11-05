@@ -28,10 +28,15 @@ try {
   const r = rec.run;
   const m = r.moment;
   console.log(`recorded on ${r.device}: ${r.totalSteps} steps in ${r.seconds.toFixed(1)} s`);
-  console.log(m ? `moment: head ${m.head} at step ${m.step}, prefix ${m.prefix.toFixed(2)}, copy ${m.before?.copySecond.toFixed(2)} → ${m.copySecond.toFixed(2)}` : 'no induction head');
+  console.log(
+    m
+      ? `moment: head ${m.head} at step ${m.step}, prefix ${m.prefix.toFixed(2)}, copy ${m.before?.copySecond.toFixed(2)} → ${m.copySecond.toFixed(2)}`
+      : 'no induction head',
+  );
   const s = r.dissection.sae;
   console.log(`sae: fvu ${s.fvu} L0 ${s.l0} dead ${s.dead} in ${s.seconds} s`);
-  for (const f of ['run.json', 'features.json', 'weights.bin']) console.log(`public/recorded/${f}: ${fs.statSync(path.join(dir, f)).size.toLocaleString('en-GB')} bytes`);
+  for (const f of ['run.json', 'features.json', 'weights.bin'])
+    console.log(`public/recorded/${f}: ${fs.statSync(path.join(dir, f)).size.toLocaleString('en-GB')} bytes`);
 } catch (e) {
   problems.push(String(e).split('\n')[0]);
 } finally {

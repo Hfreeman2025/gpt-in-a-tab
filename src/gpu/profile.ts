@@ -38,9 +38,7 @@ async function timeSubmit(model: GpuGPT, program: readonly Dispatch[], reps: num
 export async function profileStep(model: GpuGPT, reps = 24): Promise<Profile> {
   const { gpu } = model;
   const device = gpu.device;
-  const backup = [model.params, model.m, model.v].map((b) =>
-    device.createBuffer({ size: b.size, usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST }),
-  );
+  const backup = [model.params, model.m, model.v].map((b) => device.createBuffer({ size: b.size, usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST }));
   const save = device.createCommandEncoder();
   for (const [i, b] of [model.params, model.m, model.v].entries()) save.copyBufferToBuffer(b, 0, backup[i], 0, b.size);
   device.queue.submit([save.finish()]);

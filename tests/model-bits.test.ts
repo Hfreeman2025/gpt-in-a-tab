@@ -76,7 +76,10 @@ describe('batches', () => {
   it('hold out the tail only when there is room, and windows stay inside their split', () => {
     const T = 8;
     expect(splitCorpus(new Uint32Array(30), T).val).toBeNull();
-    const corpus = splitCorpus(Uint32Array.from({ length: 1000 }, (_, i) => i), T);
+    const corpus = splitCorpus(
+      Uint32Array.from({ length: 1000 }, (_, i) => i),
+      T,
+    );
     expect(corpus.val).toEqual({ start: 900, length: 100 });
     const rng = new Rng(1);
     for (let i = 0; i < 200; i++) {
@@ -93,7 +96,10 @@ describe('batches', () => {
 
   it('flag every k-th window as a repeating run of random characters, its period varying', () => {
     const T = 128;
-    const corpus = splitCorpus(Uint32Array.from({ length: 5000 }, (_, i) => i % 300), T);
+    const corpus = splitCorpus(
+      Uint32Array.from({ length: 5000 }, (_, i) => i % 300),
+      T,
+    );
     const offsets = sampleOffsets(new Rng(2), corpus.train, 8, T, 4);
     expect(Array.from(offsets, (o) => (o & REPEAT_FLAG ? 1 : 0))).toEqual([0, 0, 0, 1, 0, 0, 0, 1]);
     const periods = new Set<number>();

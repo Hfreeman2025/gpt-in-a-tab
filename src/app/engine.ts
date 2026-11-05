@@ -36,7 +36,13 @@ export interface EngineInfo {
 }
 
 export type EngineEvent =
-  | { readonly type: 'stats'; readonly steps: readonly StepStats[]; readonly evals: readonly EvalStats[]; readonly probes: readonly ProbeReading[]; readonly progress: Progress }
+  | {
+      readonly type: 'stats';
+      readonly steps: readonly StepStats[];
+      readonly evals: readonly EvalStats[];
+      readonly probes: readonly ProbeReading[];
+      readonly progress: Progress;
+    }
   | { readonly type: 'milestone'; readonly snapshot: Snapshot }
   | { readonly type: 'state'; readonly state: RunState }
   | { readonly type: 'error'; readonly message: string };
@@ -88,7 +94,6 @@ export interface Engine {
   on(listener: (e: EngineEvent) => void): () => void;
   dispose(): void;
 }
-
 
 /** How often (in steps) the induction test runs during training. */
 export const PROBE_EVERY = 20;

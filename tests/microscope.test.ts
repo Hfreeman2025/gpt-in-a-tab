@@ -128,7 +128,8 @@ describe('interventions while writing', () => {
     const cfg = withVocab({ nLayer: 2, nHead: 2, dModel: 16, context: 16 }, 9);
     // Scaled up from the initialisation so that attention matters to the output.
     const params = initParams(paramLayout(cfg), 9).map((v) => v * 12);
-    const run = (knockout?: number[]) => Array.from(generate(cfg, params, [1, 2, 3], 40, 1, 7, 5, knockout ? { knockout } : undefined), (s) => s.token).join(',');
+    const run = (knockout?: number[]) =>
+      Array.from(generate(cfg, params, [1, 2, 3], 40, 1, 7, 5, knockout ? { knockout } : undefined), (s) => s.token).join(',');
     expect(run([])).toBe(run());
     expect(run([0, 1, 2, 3])).not.toBe(run());
   });

@@ -12,7 +12,9 @@ console.log(`Chromium ${mode}, adapter ${adapter}, text ${text}`);
 page.on('console', (m) => console.log(`[console.${m.type()}] ${m.text()}`));
 page.on('pageerror', (e) => console.log(`[pageerror] ${e.message}`));
 page.on('crash', () => console.log('[crash]'));
-page.on('framenavigated', (f) => { if (f === page.mainFrame()) console.log(`[navigated] ${f.url()}`); });
+page.on('framenavigated', (f) => {
+  if (f === page.mainFrame()) console.log(`[navigated] ${f.url()}`);
+});
 await page.addInitScript(() => {
   new PerformanceObserver((list) => {
     for (const e of list.getEntries()) if (e.duration > 200) console.log(`long task ${Math.round(e.duration)} ms at ${Math.round(e.startTime)}`);
@@ -29,7 +31,9 @@ while (Date.now() - t0 < limit) {
   if (!m) continue;
   last = m;
   rows.push(m);
-  console.log(`${m.elapsed.toFixed(1).padStart(6)} s  step ${String(m.completed).padStart(5)}/${m.totalSteps}  ${Math.round(m.tokensPerSecond).toLocaleString('en-GB').padStart(9)} tok/s  loss ${m.loss.toFixed(3)}  held-out ${m.heldOut === null ? '-' : m.heldOut.toFixed(3)}`);
+  console.log(
+    `${m.elapsed.toFixed(1).padStart(6)} s  step ${String(m.completed).padStart(5)}/${m.totalSteps}  ${Math.round(m.tokensPerSecond).toLocaleString('en-GB').padStart(9)} tok/s  loss ${m.loss.toFixed(3)}  held-out ${m.heldOut === null ? '-' : m.heldOut.toFixed(3)}`,
+  );
   if (m.state === 'finished') {
     if (keep && m.elapsed < 61) {
       await page.click('#runstop');
@@ -41,6 +45,8 @@ while (Date.now() - t0 < limit) {
 const steady = rows.filter((r) => r.elapsed > 3 && r.state === 'training').map((r) => r.tokensPerSecond);
 const median = steady.sort((a, b) => a - b)[Math.floor(steady.length / 2)] ?? 0;
 console.log('\nsummary');
-console.log(JSON.stringify({ text, final: last, medianTokensPerSecond: Math.round(median), averageTokensPerSecond: Math.round(last.tokensSeen / last.elapsed) }, null, 2));
+console.log(
+  JSON.stringify({ text, final: last, medianTokensPerSecond: Math.round(median), averageTokensPerSecond: Math.round(last.tokensSeen / last.elapsed) }, null, 2),
+);
 await browser.close();
 await server.close();

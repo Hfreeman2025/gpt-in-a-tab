@@ -41,7 +41,9 @@ async function main() {
   await g.prepare(PIPELINE_VARIANTS);
   const layout = paramLayout(cfg);
   const trainer = new GpuTrainer(g, cfg, train, corpus, initParams(layout, 1), 1, steps);
-  log(`chars ${text.length}, vocab ${tok.size}, params ${layout.count}, B=${batch}, steps ${steps}, epochs ${((steps * batch * cfg.context) / corpus.train.length).toFixed(0)}`);
+  log(
+    `chars ${text.length}, vocab ${tok.size}, params ${layout.count}, B=${batch}, steps ${steps}, epochs ${((steps * batch * cfg.context) / corpus.train.length).toFixed(0)}`,
+  );
 
   const sample = (params: Float32Array, n = 240) => {
     const dec = new Decoder(cfg, params);
@@ -79,7 +81,8 @@ async function main() {
     if (s % 200 === 199) {
       const st = await trainer.readStats();
       lastLoss = st.steps[st.steps.length - 1]?.loss ?? NaN;
-      for (const e of st.evals) curve.push(`${String(e.step).padStart(5)}  train ${lastLoss.toFixed(3)}  val ${e.loss.toFixed(3)}  t=${((performance.now() - t0) / 1000).toFixed(1)}s`);
+      for (const e of st.evals)
+        curve.push(`${String(e.step).padStart(5)}  train ${lastLoss.toFixed(3)}  val ${e.loss.toFixed(3)}  t=${((performance.now() - t0) / 1000).toFixed(1)}s`);
     }
   }
   const st = await trainer.readStats();

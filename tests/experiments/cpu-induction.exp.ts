@@ -28,7 +28,9 @@ it('cpu induction', () => {
       const r = scoreProbe(cfg, 8, pb.period, (l) => m.attentionProbs(l), m.losses);
       const best = r.prefix.reduce((bi, v, i, a) => (v > a[bi] ? i : bi), 0);
       const bp = r.prev.reduce((bi, v, i, a) => (v > a[bi] ? i : bi), 0);
-      process.stderr.write(`${s} ${((Date.now() - t0) / 1000).toFixed(0)}s copy ${r.copyFirst.toFixed(2)} → ${r.copySecond.toFixed(2)}  prefix ${best} ${r.prefix[best].toFixed(2)}  prev ${bp} ${r.prev[bp].toFixed(2)}\n`);
+      process.stderr.write(
+        `${s} ${((Date.now() - t0) / 1000).toFixed(0)}s copy ${r.copyFirst.toFixed(2)} → ${r.copySecond.toFixed(2)}  prefix ${best} ${r.prefix[best].toFixed(2)}  prev ${bp} ${r.prev[bp].toFixed(2)}\n`,
+      );
     }
     if (s < steps) t.runStep();
   }

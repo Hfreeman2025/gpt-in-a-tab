@@ -1,0 +1,75 @@
+/* Tokens and resets. GPT in a tab is a digital storage oscilloscope for a training run; see IDENTITY.md. */
+
+:root {
+  --bezel: #121314;
+  --bezel-2: #191a1c;
+  --screen: #08090a;
+  --edge: #2a2c2f;
+  --grid: #1f2321;
+  --grid-2: #2e3330;
+  --phos: #e4e7df;
+  --phos-rgb: 228 231 223;
+  --dim: #a3a89f;
+  --faint: #7b8078;
+  --ch1: #f2cf3a;
+  --ch2: #3fcfe0;
+  --ch3: #df63c4;
+  --ch4: #5b8def;
+  --att: #ff9b3d;
+  --att-rgb: 255 155 61;
+  --run: #3fd07f;
+  --stop: #ff5a47;
+  --cursor: #ffffff;
+  /* IBM Plex: Sans reads, Mono records (what the model writes, every measurement), Sans
+     Condensed signs (the wordmark, headings, labels). Weights 400, 500, 600 only. */
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --cond: 'IBM Plex Sans Condensed', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --gap: 10px;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--bezel);
+}
+
+body {
+  margin: 0;
+  background: var(--bezel);
+  color: var(--phos);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cursor);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

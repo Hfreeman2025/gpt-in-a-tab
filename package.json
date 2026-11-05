@@ -5,6 +5,11 @@
   "description": "Train a small transformer in your browser on hand-written WebGPU kernels, watch an induction head form, then take the model apart: knockouts, activation patching and a sparse autoencoder.",
   "license": "MIT",
   "author": "Harry Freeman",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hfreeman2025/gpt-in-a-tab"
+  },
+  "homepage": "https://github.com/Hfreeman2025/gpt-in-a-tab#readme",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +17,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "test": "vitest run",
     "test:gpu": "node scripts/gpu-parity.mjs",
     "test:ui": "node scripts/smoke.mjs",

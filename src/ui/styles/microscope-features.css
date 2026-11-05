@@ -1,0 +1,288 @@
+/* ---------------------------------------------------------------- the microscope: features */
+
+.sae-status {
+  padding: 8px 14px 6px;
+  border-bottom: 1px solid var(--grid-2);
+}
+
+.sae-facts {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.sae-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.sae-metrics {
+  display: flex;
+  gap: 0;
+  margin: 0;
+}
+
+.sae-metrics div {
+  padding: 0 16px 0 0;
+}
+
+.sae-metrics dt {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.sae-metrics dd {
+  margin: 0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.features-body {
+  display: grid;
+  grid-template-columns: minmax(250px, 340px) minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.feature-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--grid-2);
+}
+
+.feature-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+#feature-filter {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--grid-2);
+  border-radius: 2px;
+  background: var(--bezel);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.feature-count {
+  font-size: 11px;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.feature-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 10px 4px 12px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: none;
+  text-align: left;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.feature-row:hover {
+  background: var(--bezel-2);
+}
+
+.feature-row[aria-selected='true'] {
+  border-left-color: var(--att);
+  background: var(--bezel-2);
+}
+
+.fid {
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.flabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flabel--none {
+  color: var(--faint);
+}
+
+.fdens {
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.feature-detail {
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 16px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+
+.fd-head {
+  margin: 0;
+  font-size: 17px;
+}
+
+.fd-label {
+  color: var(--att);
+}
+
+.fd-label--none {
+  color: var(--faint);
+}
+
+.fd-facts {
+  margin: 4px 0 10px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.contexts {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.contexts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--grid);
+}
+
+.ctx {
+  min-width: 0;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+  color: rgb(var(--phos-rgb) / 0.6);
+}
+
+.ctx mark {
+  background: rgb(var(--att-rgb) / var(--w));
+  color: #fff;
+}
+
+.contexts .num {
+  flex: none;
+  font-size: 11px;
+}
+
+.clamp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 12px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.clamp input[type='range'] {
+  flex: 1 1 180px;
+  min-width: 120px;
+  accent-color: var(--att);
+}
+
+.clamp output {
+  min-width: 3.5em;
+  font-variant-numeric: tabular-nums;
+  color: var(--phos);
+}
+
+.gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px dashed var(--grid-2);
+}
+
+.gate--failed {
+  border-color: var(--stop);
+}
+
+.gate-note {
+  flex: 1 1 240px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.gate progress {
+  width: 160px;
+  accent-color: var(--phos);
+}
+
+/* ---------------------------------------------------------------- the induction box */
+
+/* Room for its longest reading, so the panel below never moves as the run goes on. */
+.moment {
+  min-height: 13.5em;
+  padding: 8px 12px 10px;
+}
+
+.moment p {
+  margin: 0;
+}
+
+.moment-head {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.moment-head b {
+  color: var(--att);
+}
+
+.moment-wait {
+  color: var(--dim);
+}
+
+.moment-why {
+  margin-top: 4px !important;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+.moment-ref {
+  margin-top: 8px !important;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  vertical-align: 1px;
+}

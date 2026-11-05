@@ -209,7 +209,18 @@ export class CpuGPT {
     op.matmul(tmp, this.dlogits, this.p(wte), N, V, C);
     op.matmulTN(this.g(wte), this.dlogits, this.lnf, N, V, C);
     gres.fill(0);
-    op.layerNormBackward(gres, this.g(this.layout.get('lnf.g')), this.g(this.layout.get('lnf.b')), tmp, this.xf, this.lnfMean, this.lnfRstd, this.p(this.layout.get('lnf.g')), N, C);
+    op.layerNormBackward(
+      gres,
+      this.g(this.layout.get('lnf.g')),
+      this.g(this.layout.get('lnf.b')),
+      tmp,
+      this.xf,
+      this.lnfMean,
+      this.lnfRstd,
+      this.p(this.layout.get('lnf.g')),
+      N,
+      C,
+    );
 
     for (let l = L - 1; l >= 0; l--) {
       const a = this.acts[l];

@@ -10,7 +10,10 @@ import { root } from './browser.mjs';
 // lowercase entries keeps the download small while leaving far more text than a run can memorise.
 const dict = '/usr/share/dict/web2';
 if (fs.existsSync(dict)) {
-  const words = fs.readFileSync(dict, 'utf8').split('\n').filter((w) => /^[a-z]{3,18}$/.test(w));
+  const words = fs
+    .readFileSync(dict, 'utf8')
+    .split('\n')
+    .filter((w) => /^[a-z]{3,18}$/.test(w));
   let s = 20261101 >>> 0;
   const rand = () => {
     s = (s + 0x6d2b79f5) >>> 0;

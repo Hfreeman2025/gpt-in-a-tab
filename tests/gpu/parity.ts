@@ -132,7 +132,21 @@ async function main() {
           const c = zeros(M * N);
           const d = op.matmul(
             g,
-            { label: 'mm', a: up(a), b: up(b), c, ...(bias ? { bias: up(bv) } : {}), M, N, K, lda: transA ? M : K, ldb: transB ? K : N, ldc: N, transA, transB },
+            {
+              label: 'mm',
+              a: up(a),
+              b: up(b),
+              c,
+              ...(bias ? { bias: up(bv) } : {}),
+              M,
+              N,
+              K,
+              lda: transA ? M : K,
+              ldb: transB ? K : N,
+              ldc: N,
+              transA,
+              transB,
+            },
             dummy,
           );
           const [res] = await run([d], c);
@@ -159,7 +173,21 @@ async function main() {
     const c = up(c0);
     const d = op.matmul(
       g,
-      { label: 'mm', a: up(a), b: up(b), c, M: m, N: n, K: k, lda, ldb: n, ldc: n, accum: true, alpha: 0.5, batch: { nb1, nb2, aS1: m * lda, aS2: k, bS1: nb2 * k * n, bS2: k * n, cS1: nb2 * m * n, cS2: m * n } },
+      {
+        label: 'mm',
+        a: up(a),
+        b: up(b),
+        c,
+        M: m,
+        N: n,
+        K: k,
+        lda,
+        ldb: n,
+        ldc: n,
+        accum: true,
+        alpha: 0.5,
+        batch: { nb1, nb2, aS1: m * lda, aS2: k, bS1: nb2 * k * n, bS2: k * n, cS1: nb2 * m * n, cS2: m * n },
+      },
       dummy,
     );
     const [res] = await run([d], c);
@@ -395,7 +423,12 @@ async function main() {
   const stats = await model.readStats();
   const refStep = ref.runStep();
 
-  await test(`full step with dropout ${train.dropout}: loss`, async () => Math.abs(stats[STATS.trainLoss] - refStep.loss) / refStep.loss, 1e-4, `gpu ${stats[STATS.trainLoss].toFixed(6)} cpu ${refStep.loss.toFixed(6)}`);
+  await test(
+    `full step with dropout ${train.dropout}: loss`,
+    async () => Math.abs(stats[STATS.trainLoss] - refStep.loss) / refStep.loss,
+    1e-4,
+    `gpu ${stats[STATS.trainLoss].toFixed(6)} cpu ${refStep.loss.toFixed(6)}`,
+  );
   await test('full step: gradient norm', async () => Math.abs(stats[STATS.gradNorm] - refStep.gradNorm) / refStep.gradNorm, 1e-3);
   let worstTensor = '';
   await test(`full step: every gradient tensor (${layout.tensors.length})`, async () => {
@@ -445,10 +478,14 @@ async function main() {
   model.submit([model.evalProgram[0]]);
   const [gIn, gTg] = await Promise.all([g.read(model.inputs), g.read(model.targets)]);
   const repRef = gatherBatch(corpus.tokens, repOffsets, cfg.context, cfg.vocabSize);
-  await test('batch with repeated random runs (gather)', async () => [
-    [new Uint32Array(gIn), repRef.inputs],
-    [new Uint32Array(gTg), repRef.targets],
-  ], 0);
+  await test(
+    'batch with repeated random runs (gather)',
+    async () => [
+      [new Uint32Array(gIn), repRef.inputs],
+      [new Uint32Array(gTg), repRef.targets],
+    ],
+    0,
+  );
 
   // The induction test on the current weights, against the CPU reference.
   gt.submitProbe();
@@ -457,11 +494,25 @@ async function main() {
   const pm = new CpuGPT(cfg, ref.params, B, cfg.context);
   pm.forward(probeRef.tokens, probeRef.targets);
   const sc = scoreProbe(cfg, B, probeRef.period, (l) => pm.attentionProbs(l), pm.losses);
-  await test('induction test: copy losses', async () => [[[probed.copyFirst, probed.copySecond], [sc.copyFirst, sc.copySecond]]], 2e-3, `gpu ${probed.copySecond.toFixed(4)} cpu ${sc.copySecond.toFixed(4)}`);
-  await test(`induction test: prefix and previous scores (${sc.prefix.length} heads)`, async () => [
-    [probed.prefix, sc.prefix],
-    [probed.prev, sc.prev],
-  ], 2e-3);
+  await test(
+    'induction test: copy losses',
+    async () => [
+      [
+        [probed.copyFirst, probed.copySecond],
+        [sc.copyFirst, sc.copySecond],
+      ],
+    ],
+    2e-3,
+    `gpu ${probed.copySecond.toFixed(4)} cpu ${sc.copySecond.toFixed(4)}`,
+  );
+  await test(
+    `induction test: prefix and previous scores (${sc.prefix.length} heads)`,
+    async () => [
+      [probed.prefix, sc.prefix],
+      [probed.prev, sc.prev],
+    ],
+    2e-3,
+  );
 
   // Knockouts and activation patching: the edited forward pass against the CPU hook.
   const scope = new Microscope(model);
@@ -475,11 +526,16 @@ async function main() {
   kc.editAttention = (l, y) => {
     if (l !== Math.floor(head / H)) return;
     const hs = cfg.dModel / H;
-    for (let n = 0; n < B * cfg.context; n++) y.fill(0, n * cfg.dModel + (head % H) * hs, n * cfg.dModel + (head % H + 1) * hs);
+    for (let n = 0; n < B * cfg.context; n++) y.fill(0, n * cfg.dModel + (head % H) * hs, n * cfg.dModel + ((head % H) + 1) * hs);
   };
   kc.forward(probeRef.tokens, probeRef.targets);
   const koRef = copyOf(kc) - baseCopy;
-  await test('knockout of one head: change in copy loss', async () => Math.abs(ko.copy[head] - koRef) / Math.max(1e-3, Math.abs(base)), 2e-3, `gpu ${ko.copy[head].toFixed(5)} cpu ${koRef.toFixed(5)}`);
+  await test(
+    'knockout of one head: change in copy loss',
+    async () => Math.abs(ko.copy[head] - koRef) / Math.max(1e-3, Math.abs(base)),
+    2e-3,
+    `gpu ${ko.copy[head].toFixed(5)} cpu ${koRef.toFixed(5)}`,
+  );
 
   const pt = await scope.patching();
   const clean = new CpuGPT(cfg, ref.params, B, cfg.context);
@@ -496,7 +552,12 @@ async function main() {
   };
   pc.forward(probeRef.corrupt, probeRef.corruptTargets);
   const patchedRef = copyOf(pc);
-  await test('activation patching of one head: copy loss', async () => Math.abs(pt.patched[head] - patchedRef) / patchedRef, 2e-3, `gpu ${pt.patched[head].toFixed(5)} cpu ${patchedRef.toFixed(5)}`);
+  await test(
+    'activation patching of one head: copy loss',
+    async () => Math.abs(pt.patched[head] - patchedRef) / patchedRef,
+    2e-3,
+    `gpu ${pt.patched[head].toFixed(5)} cpu ${patchedRef.toFixed(5)}`,
+  );
 
   // The sparse autoencoder: one optimiser step, and the analysis pass, against the CPU reference.
   const saeOpts = { features: 64, batch: 256, steps: 1, lambda: 2, lr: 1e-3, site: 3, topK: 4 };
@@ -511,7 +572,8 @@ async function main() {
   const cm = new CpuGPT(cfg, ref.params, B, cfg.context);
   for (let k = 0; k < rows / (B * cfg.context); k++) {
     const ins = new Uint32Array(B * cfg.context);
-    for (let b = 0; b < B; b++) ins.set(corpus.tokens.subarray(corpus.train.start + (k * B + b) * cfg.context, corpus.train.start + (k * B + b + 1) * cfg.context), b * cfg.context);
+    for (let b = 0; b < B; b++)
+      ins.set(corpus.tokens.subarray(corpus.train.start + (k * B + b) * cfg.context, corpus.train.start + (k * B + b + 1) * cfg.context), b * cfg.context);
     cm.forward(ins);
     actsRef.set(cm.residual(saeOpts.site), k * B * cfg.context * C);
   }
@@ -532,10 +594,19 @@ async function main() {
   normaliseDecoder(p1Ref, lay);
   await test(`sparse autoencoder: one training step (${saeOpts.features} features, ${saeOpts.batch} rows)`, async () => [[p1, p1Ref]], 1e-4);
   const res = await sae.analyse();
-  const all = saeForward(p1, lay, Float32Array.from(actsRef, (v) => v * sae.scale), rows);
+  const all = saeForward(
+    p1,
+    lay,
+    Float32Array.from(actsRef, (v) => v * sae.scale),
+    rows,
+  );
   const counts = new Float64Array(saeOpts.features);
   for (let r = 0; r < rows - (rows % saeOpts.batch); r++) for (let j = 0; j < saeOpts.features; j++) if (all.f[r * saeOpts.features + j] > 0) counts[j]++;
-  await test('sparse autoencoder: firing counts over every position', async () => [[res.features.map((f) => f.density * res.positions), Array.from(counts)]], 2e-3);
+  await test(
+    'sparse autoencoder: firing counts over every position',
+    async () => [[res.features.map((f) => f.density * res.positions), Array.from(counts)]],
+    2e-3,
+  );
 
   const failed = results.filter((r) => !r.pass).length;
   log(`\n${results.length - failed}/${results.length} passed`);

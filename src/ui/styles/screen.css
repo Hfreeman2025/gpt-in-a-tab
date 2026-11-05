@@ -1,0 +1,337 @@
+/* ---------------------------------------------------------------- screen */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--screen);
+  border: 1px solid var(--edge);
+}
+
+.pane {
+  flex: 1;
+  min-height: 0;
+}
+
+.pane[hidden] {
+  display: none;
+}
+
+.pane-train {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.45fr);
+}
+
+.decode {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-bottom: 1px solid var(--edge);
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label {
+  color: var(--faint);
+}
+
+.field--prompt {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.field input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--bezel);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--phos);
+}
+
+.field input[type='text']::placeholder {
+  color: var(--faint);
+}
+
+.field input[type='text']:focus {
+  border-color: var(--dim);
+  outline: none;
+}
+
+.field input[type='text']:focus-visible {
+  outline: 2px solid var(--cursor);
+  outline-offset: 1px;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 92px;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--edge);
+}
+
+input[type='range']::-moz-range-track {
+  height: 2px;
+  background: var(--edge);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 16px;
+  margin-top: -7px;
+  border-radius: 1px;
+  background: var(--phos);
+  border: 0;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 10px;
+  height: 16px;
+  border-radius: 1px;
+  background: var(--phos);
+  border: 0;
+}
+
+output {
+  font-variant-numeric: tabular-nums;
+  color: var(--phos);
+  letter-spacing: 0;
+  min-width: 3.2em;
+}
+
+/* a fixed width, right-aligned, so the prompt field never resizes as the readout changes */
+.where {
+  flex: 0 0 auto;
+  width: 22em;
+  margin-left: auto;
+  min-width: 0;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--phos);
+}
+
+.where .live {
+  color: var(--run);
+}
+
+.where .replay {
+  color: var(--cursor);
+}
+
+.where .holding {
+  color: var(--dim);
+}
+
+.text {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px 30px;
+  overflow: hidden;
+}
+
+.text-body {
+  height: 100%;
+  columns: 30ch auto;
+  column-gap: 2.5ch;
+  column-fill: auto;
+  font-family: var(--mono);
+  font-size: calc(clamp(14px, 1.62vw, 25px) * var(--range, 1));
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: rgb(var(--phos-rgb) / 0.82);
+}
+
+/* a glyph the model wrote: --a is its brightness, set by the probability it gave the glyph */
+.g {
+  color: rgb(var(--phos-rgb) / var(--a, 1));
+  cursor: crosshair;
+}
+
+.g.cut {
+  visibility: hidden;
+}
+
+.g.n {
+  animation: strike 250ms ease-out;
+}
+
+@keyframes strike {
+  from {
+    color: #ffffff;
+  }
+}
+
+.g.p {
+  color: var(--phos);
+  text-decoration: underline;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+}
+
+.g.att {
+  background: rgb(var(--att-rgb) / var(--w, 0));
+}
+
+.g.at {
+  outline: 1px solid var(--cursor);
+  outline-offset: 0;
+  color: #ffffff;
+}
+
+/* one line kept free under the text, so a note never sits on top of the model's writing */
+.text-note {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+.text-note:empty {
+  display: none;
+}
+
+.text-empty {
+  font-family: var(--sans);
+  color: var(--faint);
+  white-space: normal;
+}
+
+.trace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.strip--trace {
+  gap: 16px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.ch::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+.ch1::before {
+  background: var(--ch1);
+}
+
+.ch2::before {
+  background: var(--ch2);
+}
+
+.ch3::before {
+  background: var(--ch3);
+}
+
+.ch4::before {
+  background: var(--ch4);
+}
+
+.ref::before {
+  background: none;
+  border: 1px dashed var(--dim);
+}
+
+.ref[data-state='pending'] {
+  opacity: 0.45;
+}
+
+.ref[data-state='missing'] {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.scale {
+  min-width: 17em;
+  margin-left: auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+  letter-spacing: 0;
+}
+
+.trace-frame {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+#scope {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+#scope:focus-visible {
+  outline: 1px solid var(--cursor);
+  outline-offset: -1px;
+}
+
+.key {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--bezel-2);
+  color: var(--phos);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.key:hover:not(:disabled) {
+  border-color: var(--dim);
+}
+
+.key:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+.key[aria-pressed='true'] {
+  border-color: var(--run);
+  color: var(--run);
+}

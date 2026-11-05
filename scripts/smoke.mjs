@@ -53,7 +53,10 @@ try {
   const heldWhere = await where();
   const trainedAt = (await metrics()).completed;
   await page.waitForTimeout(1500);
-  check((await text()) === heldText && (await where()) === heldWhere && (await metrics()).completed > trainedAt, 'pointing at a character holds the text while training carries on');
+  check(
+    (await text()) === heldText && (await where()) === heldWhere && (await metrics()).completed > trainedAt,
+    'pointing at a character holds the text while training carries on',
+  );
   await page.mouse.move(5, 5);
   await until((w) => !/held/.test(document.getElementById('where').textContent) && document.getElementById('where').textContent !== w, heldWhere, 30_000);
   check(true, 'letting go of the character, the live text catches up');
@@ -78,7 +81,10 @@ try {
   const held = await metrics();
   await page.waitForTimeout(800);
   const after = { key: await key(), steps: (await metrics()).completed };
-  check(after.key === 'held' && after.steps === held.completed, `holding during kernel timing keeps the run held (key ${after.key}, steps ${held.completed} then ${after.steps})`);
+  check(
+    after.key === 'held' && after.steps === held.completed,
+    `holding during kernel timing keeps the run held (key ${after.key}, steps ${held.completed} then ${after.steps})`,
+  );
   check(held.completed >= steps, 'the step count never goes backwards across timing');
   await page.locator('#runstop').click();
   await until((n) => (window.__metrics?.completed ?? 0) > n + 30, held.completed);
@@ -88,22 +94,37 @@ try {
   // Run to the end; then 25% more stays at the final learning rate.
   await until(() => window.__metrics?.state === 'finished', null, 300_000);
   check((await key()) === 'done', 'the key reads DONE when the run ends');
-  check(/learned to copy at step/.test(await page.textContent('#moment')), `an induction head formed and was named (${(await page.textContent('#moment')).slice(0, 40)}…)`);
+  check(
+    /learned to copy at step/.test(await page.textContent('#moment')),
+    `an induction head formed and was named (${(await page.textContent('#moment')).slice(0, 40)}…)`,
+  );
 
   // The microscope: knocking out the copying heads breaks copying; pinning a feature changes the writing.
   await page.click('#mode-heads');
   await until(() => document.querySelector('table.ko') !== null, null, 120_000);
   const copiers = await page.evaluate(() => [...document.querySelectorAll('.head-cell--copies .head-name')].map((e) => e.textContent));
   check(copiers.length > 0, `the heads pane marks the copying heads (${copiers.join(', ')})`);
-  for (const name of copiers) await page.locator('.head-cell', { has: page.locator('.head-name', { hasText: name }) }).first().click({ modifiers: ['Shift'] });
-  await until(() => /\d+\/\d+/.test(document.getElementById('copy-off').textContent) && /\d+\/\d+/.test(document.getElementById('copy-base').textContent), null, 60_000);
+  for (const name of copiers)
+    await page
+      .locator('.head-cell', { has: page.locator('.head-name', { hasText: name }) })
+      .first()
+      .click({ modifiers: ['Shift'] });
+  await until(
+    () => /\d+\/\d+/.test(document.getElementById('copy-off').textContent) && /\d+\/\d+/.test(document.getElementById('copy-base').textContent),
+    null,
+    60_000,
+  );
   const score = (id) => page.evaluate((i) => Number(/(\d+)\/(\d+)/.exec(document.getElementById(i).textContent)?.[1] ?? -1), id);
   const [on, off] = [await score('copy-base'), await score('copy-off')];
   check(on > off + 10, `with the copying heads knocked out it stops copying (${on} right as trained, ${off} without them)`);
   await page.click('#mode-features');
   await until(() => document.querySelectorAll('#feature-list .feature-row').length > 100, null, 120_000);
   await page.getByRole('button', { name: 'Triple' }).click();
-  await until(() => (document.getElementById('fd-pinned')?.textContent ?? '').length > 50 && (document.getElementById('fd-base')?.textContent ?? '').length > 50, null, 60_000);
+  await until(
+    () => (document.getElementById('fd-pinned')?.textContent ?? '').length > 50 && (document.getElementById('fd-base')?.textContent ?? '').length > 50,
+    null,
+    60_000,
+  );
   const [base, pinned] = await page.evaluate(() => [document.getElementById('fd-base').textContent, document.getElementById('fd-pinned').textContent]);
   check(base !== pinned, 'pinning a feature changes what the model writes');
   await page.click('#mode-train');
@@ -116,7 +137,11 @@ try {
   await until(() => document.getElementById('runstop').dataset.state === 'held');
 
   // Pick another text while the kernels are being timed: a new run starts and trains normally.
-  await page.locator('#system-body button').first().click().catch(() => undefined);
+  await page
+    .locator('#system-body button')
+    .first()
+    .click()
+    .catch(() => undefined);
   await page.locator('[data-id="alice"]').click();
   await until(() => window.__metrics?.sessions === 2 && (window.__metrics?.completed ?? 0) > 80, null, 120_000);
   const second = await metrics();

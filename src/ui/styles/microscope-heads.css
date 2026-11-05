@@ -1,0 +1,381 @@
+/* ---------------------------------------------------------------- the microscope: modes */
+
+.modes {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 1px solid var(--edge);
+  background: var(--bezel);
+}
+
+.mode {
+  padding: 7px 18px 6px;
+  border: 0;
+  border-right: 1px solid var(--edge);
+  background: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.mode:hover {
+  color: var(--phos);
+}
+
+.mode[aria-selected='true'] {
+  background: var(--screen);
+  color: var(--phos);
+  box-shadow: inset 0 2px 0 var(--phos);
+}
+
+.mode-note {
+  margin-left: auto;
+  align-self: center;
+  padding: 0 12px;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.strip-note {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--faint);
+}
+
+.source-switch {
+  display: inline-flex;
+  margin-left: auto;
+}
+
+.switch {
+  padding: 2px 9px;
+  border: 1px solid var(--grid-2);
+  background: none;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.switch + .switch {
+  border-left: 0;
+}
+
+.switch[aria-pressed='true'] {
+  border-color: var(--phos);
+  color: var(--phos);
+}
+
+.switch--live[aria-pressed='true'] {
+  border-color: var(--run);
+  color: var(--run);
+}
+
+.switch:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pane-empty {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--faint);
+}
+
+/* ---------------------------------------------------------------- the microscope: heads */
+
+.pane-heads,
+.pane-features {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+
+.heads-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.head-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--heads, 4), minmax(0, 1fr));
+  gap: 6px;
+  align-content: start;
+}
+
+.head-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 7px 8px 8px;
+  border: 1px solid var(--grid-2);
+  background: var(--screen);
+  text-align: left;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.head-cell:hover {
+  border-color: var(--dim);
+}
+
+.head-cell[aria-pressed='true'] {
+  outline: 1px solid var(--cursor);
+  outline-offset: -1px;
+  color: var(--phos);
+}
+
+.head-cell--copies {
+  border-color: var(--att);
+}
+
+.head-cell--previous {
+  border-color: rgb(var(--phos-rgb) / 0.55);
+}
+
+.head-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--phos);
+}
+
+.head-cell--copies .head-name {
+  color: var(--att);
+}
+
+.head-cell--off .head-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--stop);
+}
+
+.head-cell--off .head-name::after {
+  content: ' off';
+  color: var(--stop);
+  text-decoration: none;
+  display: inline-block;
+  margin-left: 3px;
+}
+
+.meter {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter i {
+  display: block;
+  height: 3px;
+  background: var(--grid-2);
+}
+
+.meter i::after {
+  content: '';
+  display: block;
+  width: calc(var(--v) * 100%);
+  height: 100%;
+  background: var(--fill);
+}
+
+.meter--copy {
+  --fill: var(--att);
+}
+
+.meter--prev {
+  --fill: var(--phos);
+}
+
+.head-ko,
+.head-pt {
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.pattern {
+  margin: 0;
+}
+
+.pattern canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+  border: 1px solid var(--edge);
+  background: var(--screen);
+}
+
+.pattern figcaption {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+.ko-body {
+  display: grid;
+  grid-template-columns: minmax(0, 430px) minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 14px 14px;
+}
+
+table.ko {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+table.ko th {
+  padding: 2px 6px 4px 0;
+  font-weight: 400;
+  text-align: left;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+table.ko thead th {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--grid-2);
+}
+
+table.ko td {
+  padding: 1px 8px 1px 0;
+  white-space: nowrap;
+}
+
+table.ko tr.sel th {
+  color: var(--cursor);
+}
+
+.bar {
+  display: inline-block;
+  width: calc(var(--v) * 64px);
+  min-width: 1px;
+  height: 7px;
+  margin-right: 6px;
+  vertical-align: 0;
+  background: var(--att);
+}
+
+.bar--text {
+  background: var(--ch2);
+}
+
+.bar--patch {
+  background: var(--phos);
+}
+
+.bar--neg {
+  opacity: 0.45;
+}
+
+.num {
+  color: var(--dim);
+}
+
+.ko-note {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compare-label {
+  margin: 0 0 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.compare-text {
+  margin: 0;
+  min-height: 9em;
+  max-height: 15em;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: rgb(var(--phos-rgb) / 0.86);
+}
+
+.copy-demo {
+  margin-bottom: 12px;
+}
+
+.copy-prompt {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--faint);
+}
+
+.copy-line {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  margin: 0;
+  font-size: 11.5px;
+}
+
+.copy-who {
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.copy-text .ok {
+  color: var(--run);
+}
+
+.copy-text .bad {
+  color: var(--stop);
+  text-decoration: underline;
+  text-decoration-color: rgb(255 90 71 / 0.6);
+}
+
+.copy-text .score {
+  color: var(--dim);
+}
+
+.compare-text .same {
+  color: rgb(var(--phos-rgb) / 0.86);
+}
+
+.compare-text mark {
+  background: rgb(var(--att-rgb) / 0.32);
+  color: #fff;
+}

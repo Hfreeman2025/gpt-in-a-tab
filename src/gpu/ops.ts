@@ -45,7 +45,28 @@ export function matmul(g: Gpu, s: MatmulSpec, dummy: Ref): Dispatch {
   return g.dispatch(
     s.label,
     'matmul',
-    [s.M, s.N, s.K, bt.nb2, s.lda, s.ldb, s.ldc, { f: s.alpha ?? 1 }, s.aOff ?? 0, s.bOff ?? 0, s.cOff ?? 0, 0, bt.aS1, bt.aS2, bt.bS1, bt.bS2, bt.cS1, bt.cS2, 0, 0],
+    [
+      s.M,
+      s.N,
+      s.K,
+      bt.nb2,
+      s.lda,
+      s.ldb,
+      s.ldc,
+      { f: s.alpha ?? 1 },
+      s.aOff ?? 0,
+      s.bOff ?? 0,
+      s.cOff ?? 0,
+      0,
+      bt.aS1,
+      bt.aS2,
+      bt.bS1,
+      bt.bS2,
+      bt.cS1,
+      bt.cS2,
+      0,
+      0,
+    ],
     [s.a, s.b, s.c, s.bias ?? dummy],
     [Math.ceil(s.N / 64), Math.ceil(s.M / 64), nb],
     {
@@ -70,7 +91,19 @@ export function splitFor(K: number, tiles: number, target = 512): number {
 }
 
 /** out[K×N] = aᵀ·b with a stored M×K: split over M, then reduced. Scratch needs S·K·N floats. */
-export function matmulTNSplit(g: Gpu, label: string, a: Ref, b: Ref, out: Ref, scratch: Ref, M: number, K: number, N: number, dummy: Ref, accum = false): Dispatch[] {
+export function matmulTNSplit(
+  g: Gpu,
+  label: string,
+  a: Ref,
+  b: Ref,
+  out: Ref,
+  scratch: Ref,
+  M: number,
+  K: number,
+  N: number,
+  dummy: Ref,
+  accum = false,
+): Dispatch[] {
   const S = splitFor(M, Math.ceil(K / 64) * Math.ceil(N / 64));
   const chunk = M / S;
   return [
@@ -104,7 +137,10 @@ export function scratchForTN(M: number, K: number, N: number): number {
 export function colSum(g: Gpu, label: string, x: Ref, out: Ref, scratch: Ref, rows: number, cols: number): Dispatch[] {
   const S = colSplit(rows, cols);
   const chunk = Math.ceil(rows / S);
-  return [g.dispatch(`${label} partial`, 'colsum', [rows, cols, S, chunk], [x, scratch], gridThreads(cols * S)), reduce(g, `${label} reduce`, scratch, out, cols, S, cols)];
+  return [
+    g.dispatch(`${label} partial`, 'colsum', [rows, cols, S, chunk], [x, scratch], gridThreads(cols * S)),
+    reduce(g, `${label} reduce`, scratch, out, cols, S, cols),
+  ];
 }
 
 function colSplit(rows: number, cols: number): number {
@@ -400,7 +436,19 @@ export function embed(g: Gpu, label: string, tokens: Ref, wte: Ref, wpe: Ref, dr
 }
 
 /** dwpe is overwritten; dwte is ACCUMULATED onto (the tied head writes it first). */
-export function embedBackward(g: Gpu, label: string, tokens: Ref, dx: Ref, dwte: Ref, dwpe: Ref, scratch: Ref, B: number, T: number, C: number, V: number): Dispatch[] {
+export function embedBackward(
+  g: Gpu,
+  label: string,
+  tokens: Ref,
+  dx: Ref,
+  dwte: Ref,
+  dwpe: Ref,
+  scratch: Ref,
+  B: number,
+  T: number,
+  C: number,
+  V: number,
+): Dispatch[] {
   const N = B * T;
   const S = wteSplit(N, V, C);
   const chunk = Math.ceil(N / S);

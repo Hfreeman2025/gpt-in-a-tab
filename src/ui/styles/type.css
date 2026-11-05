@@ -1,0 +1,80 @@
+/* ---------------------------------------------------------------- type: signs and records */
+
+.name,
+.strip,
+.key,
+.runstop-label,
+.readouts dt,
+.manual-section h2,
+.system h3,
+.mode,
+.switch,
+.head-name,
+.compare-label,
+.sae-metrics dt,
+.badge,
+table.ko th,
+.copy-who {
+  font-family: var(--cond);
+}
+
+.name,
+.strip-label,
+.runstop-label,
+.manual-section h2,
+.system h3,
+.mode,
+.head-name,
+.badge {
+  font-weight: 600;
+}
+
+.strip,
+.key,
+.readouts dt,
+.switch,
+.compare-label,
+.sae-metrics dt,
+table.ko thead th,
+.copy-who {
+  font-weight: 500;
+}
+
+.softkeys .key[aria-checked='true'] {
+  font-weight: 600;
+}
+
+/* Inside a strip of labels: what is typed is the reader's text, what is read out is a record. */
+.strip input,
+.strip .strip-note,
+.strip .heads-what {
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+.where,
+.scale,
+.strip output,
+.source-count,
+.sae-metrics dd,
+.num,
+.fid,
+.fdens,
+.meter span,
+.head-ko,
+.head-pt,
+.feature-count,
+.clamp output {
+  font-family: var(--mono);
+}
+
+.where,
+.scale,
+.strip output {
+  font-weight: 400;
+}
+
+.fd-head b {
+  font-family: var(--mono);
+  font-weight: 600;
+}

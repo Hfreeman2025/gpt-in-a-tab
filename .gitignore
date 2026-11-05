@@ -30,7 +30,9 @@ public/recorded/weights.bin
 *.pt
 *.ckpt
 
-# Logs, screen recordings, OS litter
+# Screenshots made by `npm run shots` (the README's own images live in docs/screenshots/)
+shots/
+
+# Logs, OS litter
 *.log
-shots/*.webm
 .DS_Store

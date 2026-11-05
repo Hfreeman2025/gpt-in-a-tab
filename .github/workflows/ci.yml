@@ -20,8 +20,12 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run format:check
       - run: npm test
       - run: npm run licences
       - run: npm audit --audit-level=moderate
-      - run: npx vite build
-# The GPU parity suite (npm run test:gpu) needs a real GPU and runs locally; see README.
+      - run: npm run build
+
+# Not run here, honestly: the browser suites need a real GPU with WebGPU, which GitHub's runners
+# do not have. Run them locally: npm run test:gpu (kernels against the CPU reference),
+# npm run test:ui (the page in Chromium), npm run test:browsers (Chromium, WebKit, Firefox).

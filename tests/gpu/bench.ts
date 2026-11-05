@@ -81,7 +81,9 @@ async function main() {
       const a = await plain();
       const [b, wb] = await looped(3);
       const [c, wc] = await looped(8);
-      log(`round ${r}: plain ${a.toFixed(2)} ms/step | loop depth 3 ${b.toFixed(2)} (waiting ${wb.toFixed(2)}) | depth 8 ${c.toFixed(2)} (waiting ${wc.toFixed(2)})`);
+      log(
+        `round ${r}: plain ${a.toFixed(2)} ms/step | loop depth 3 ${b.toFixed(2)} (waiting ${wb.toFixed(2)}) | depth 8 ${c.toFixed(2)} (waiting ${wc.toFixed(2)})`,
+      );
     }
     window.__bench = { done: true };
     return;
@@ -124,7 +126,9 @@ async function main() {
   log(`\nprofile: kernels ${prof.kernelMs.toFixed(2)} ms, step ${prof.stepMs.toFixed(2)} ms`);
   for (const k of groupByKernel(prof)) {
     const gf = k.flops ? `  ${(k.flops / k.ms / 1e6).toFixed(0)} GFLOP/s` : '';
-    log(`${k.kernel.padEnd(22)} ×${String(k.calls).padStart(3)}  ${k.ms.toFixed(3).padStart(7)} ms  ${((100 * k.ms) / prof.kernelMs).toFixed(1).padStart(5)}%${gf}`);
+    log(
+      `${k.kernel.padEnd(22)} ×${String(k.calls).padStart(3)}  ${k.ms.toFixed(3).padStart(7)} ms  ${((100 * k.ms) / prof.kernelMs).toFixed(1).padStart(5)}%${gf}`,
+    );
   }
   const top = [...prof.timings].sort((a, b) => b.ms - a.ms).slice(0, 14);
   log('\nslowest dispatches:');

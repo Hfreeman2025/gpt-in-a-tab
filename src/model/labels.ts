@@ -77,10 +77,21 @@ function rulesFor(contexts: readonly Context[]): Rule[] {
     const w = wordAround(c.text, c.at);
     if (w) add({ key: `word:${w.word}`, text: `in “${w.word}”`, weight: 6, test: (x) => wordAround(x.text, x.at)?.word === w.word });
     const pw = wordBefore(c.text, c.at);
-    if (pw) add({ key: `after-word:${pw}`, text: `${ch === ' ' ? 'the space' : sayChar(ch ?? '')} after “${pw}”`, weight: 6, test: (x) => wordBefore(x.text, x.at) === pw && x.text[x.at] === ch });
+    if (pw)
+      add({
+        key: `after-word:${pw}`,
+        text: `${ch === ' ' ? 'the space' : sayChar(ch ?? '')} after “${pw}”`,
+        weight: 6,
+        test: (x) => wordBefore(x.text, x.at) === pw && x.text[x.at] === ch,
+      });
   }
   add({ key: 'word-start', text: 'starting a word', weight: 1.5, test: (x) => isLetter(x.text[x.at]) && !isWordChar(x.text[x.at - 1]) });
-  add({ key: 'word-end', text: 'ending a word', weight: 1.5, test: (x) => isLetter(x.text[x.at]) && x.text[x.at + 1] !== undefined && !isWordChar(x.text[x.at + 1]) });
+  add({
+    key: 'word-end',
+    text: 'ending a word',
+    weight: 1.5,
+    test: (x) => isLetter(x.text[x.at]) && x.text[x.at + 1] !== undefined && !isWordChar(x.text[x.at + 1]),
+  });
   add({ key: 'line-start', text: 'starting a line', weight: 2, test: (x) => x.text[x.at - 1] === '\n' });
   add({ key: 'capital', text: 'a capital letter', weight: 1, test: (x) => /\p{Lu}/u.test(x.text[x.at] ?? '') });
   add({ key: 'vowel', text: 'a vowel', weight: 1, test: (x) => /[aeiouy]/i.test(x.text[x.at] ?? '') });

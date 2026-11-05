@@ -3,7 +3,9 @@ import { fromHalf } from '../model/half';
 import type { Moment, ProbeReading } from '../model/probe';
 import type { Knockouts, Patching } from '../gpu/microscope';
 import type { SaeFeature, SaeOptions, SaeStep } from '../gpu/sae';
-import type { SampleId } from '../samples';
+import { type SampleId, sampleById } from '../samples';
+import { type Tokenizer, buildTokenizer, normaliseText } from '../model/tokenizer';
+import type { Reference } from '../ui/scope';
 
 /**
  * A run of this page's own code, recorded in headless Chromium by scripts/record.mjs and shipped
@@ -62,6 +64,43 @@ export async function loadRecordedFeatures(signal?: AbortSignal): Promise<SaeFea
   if (!r.ok) throw new Error(`the recorded features did not load (HTTP ${r.status})`);
   const raw = (await r.json()) as { id: number; density: number; mean: number; top: [number, number][] }[];
   return raw.map((f) => ({ id: f.id, density: f.density, mean: f.mean, top: f.top.map(([pos, value]) => ({ pos, value })) }));
+}
+
+/** The recording, ready to use: its text's tokenizer, and the run as the scope's reference waveform. */
+export interface OpenedRecording {
+  readonly run: RecordedRun;
+  readonly tok: Tokenizer;
+  readonly tokens: Uint32Array;
+  readonly reference: Reference;
+}
+
+/** Loads the recorded run and the text it was trained on. Throws if either is unavailable. */
+export async function openRecording(): Promise<OpenedRecording> {
+  const run = await loadRecorded();
+  const sample = sampleById(run.text);
+  if (!sample) throw new Error(`the recording names an unknown text: ${run.text}`);
+  const text = normaliseText(await sample.load());
+  const tok = buildTokenizer(text);
+  const reference: Reference = {
+    train: smoothTrace(run.trace.steps),
+    copy: run.probes.map((p) => ({ step: p.step, value: p.copySecond })),
+    probes: run.probes,
+    moment: run.moment,
+    total: run.totalSteps,
+    heads: { L: run.cfg.nLayer, H: run.cfg.nHead },
+  };
+  return { run, tok, tokens: tok.encode(text), reference };
+}
+
+/** The recorded training loss, smoothed as the live trace is (an exponential average, bias-corrected). */
+function smoothTrace(points: readonly (readonly [number, number])[]): { step: number; value: number }[] {
+  let ema = 0;
+  let n = 0;
+  return points.map(([step, loss]) => {
+    n++;
+    ema = 0.96 * ema + 0.04 * loss;
+    return { step, value: ema / (1 - 0.96 ** n) };
+  });
 }
 
 export function decodePattern(b64: string): Float32Array {
@@ -172,7 +211,11 @@ export class WeightsDownload {
       }
       const halves = new Uint16Array(bytes.buffer, 0, received / 2);
       const { model, sae } = this.run.weights;
-      this.set({ kind: 'ready', weights: { model: fromHalf(halves.subarray(0, model)), sae: fromHalf(halves.subarray(model, model + sae)) }, fromCache: hit !== undefined });
+      this.set({
+        kind: 'ready',
+        weights: { model: fromHalf(halves.subarray(0, model)), sae: fromHalf(halves.subarray(model, model + sae)) },
+        fromCache: hit !== undefined,
+      });
     } catch (e) {
       if (abort.signal.aborted || (e instanceof DOMException && e.name === 'AbortError')) this.set({ kind: 'cancelled' });
       else this.set({ kind: 'failed', message: e instanceof Error ? e.message : String(e) });

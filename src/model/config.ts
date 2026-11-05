@@ -77,10 +77,6 @@ export function withVocab(shape: ModelShape, vocabSize: number): ModelConfig {
   return { ...shape, vocabSize };
 }
 
-export function headSize(cfg: ModelConfig): number {
-  return cfg.dModel / cfg.nHead;
-}
-
 export function validateConfig(cfg: ModelConfig): void {
   const ints: (keyof ModelConfig)[] = ['vocabSize', 'nLayer', 'nHead', 'dModel', 'context'];
   for (const k of ints) {

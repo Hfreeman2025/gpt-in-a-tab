@@ -1,0 +1,214 @@
+/* ---------------------------------------------------------------- phones and narrow windows */
+
+@media (max-width: 900px) {
+  .modes {
+    overflow-x: auto;
+  }
+
+  .mode {
+    padding: 8px 14px 7px;
+  }
+
+  .pane-heads,
+  .pane-features {
+    overflow: visible;
+  }
+
+  .heads-body,
+  .ko-body,
+  .features-body,
+  .compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .head-grid {
+    gap: 4px;
+  }
+
+  .head-cell {
+    padding: 5px 5px 6px;
+    font-size: 10px;
+  }
+
+  .head-ko,
+  .head-pt {
+    display: none;
+  }
+
+  .feature-side {
+    border-right: 0;
+    border-bottom: 1px solid var(--grid-2);
+  }
+
+  .feature-list {
+    max-height: 260px;
+  }
+
+  .sae-metrics dd {
+    font-size: 15px;
+  }
+  .instrument {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    padding: 8px 10px 12px;
+    gap: 8px;
+  }
+
+  .topbar {
+    order: -2;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+
+  .what {
+    order: 3;
+    flex-basis: 100%;
+    white-space: normal;
+    font-size: 12.5px;
+  }
+
+  .device {
+    font-size: 11px;
+  }
+
+  .pane-train {
+    grid-template-rows: auto auto;
+  }
+
+  /* Three fixed rows, so a longer readout (REPLAY … of …) never pushes the prompt down. */
+  .decode .strip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: 'label where' 'temp temp' 'prompt prompt';
+    row-gap: 4px;
+    padding-top: 4px;
+    padding-bottom: 6px;
+  }
+
+  .decode .strip-label {
+    grid-area: label;
+  }
+
+  /* Fills its cell (an auto margin would size it to its text, and move it when the text changes). */
+  .decode .where {
+    grid-area: where;
+    justify-self: stretch;
+    width: auto;
+    height: 18px;
+    margin-left: 0;
+    line-height: 18px;
+  }
+
+  .decode .field {
+    grid-area: temp;
+  }
+
+  .decode .field--prompt {
+    grid-area: prompt;
+  }
+
+  .text {
+    height: 282px;
+    flex: none;
+  }
+
+  .text-body {
+    columns: auto;
+    font-size: calc(14px * var(--range, 1));
+  }
+
+  .trace-frame {
+    height: 330px;
+    flex: none;
+  }
+
+  table.ko thead th {
+    white-space: normal;
+    vertical-align: bottom;
+  }
+
+  .strip--trace {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    white-space: normal;
+  }
+
+  .strip--trace .scale {
+    margin-left: 0;
+  }
+
+  .where .holding .l,
+  .readouts .l {
+    display: none;
+  }
+
+  .readouts .s {
+    display: inline;
+  }
+
+  .readouts dd small {
+    display: none;
+  }
+
+  .panel {
+    display: contents;
+  }
+
+  .runstop {
+    order: -1;
+    height: 52px;
+  }
+
+  .readouts {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .readouts div {
+    padding: 5px 7px;
+  }
+
+  .readouts div:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .readouts div:not(:nth-child(4n)) {
+    border-right: 1px solid var(--edge);
+  }
+
+  .readouts div:nth-last-child(-n + 4) {
+    border-bottom: 0;
+  }
+
+  .readouts dt {
+    font-size: 9.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .readouts dd {
+    font-size: 15px;
+  }
+
+  .source {
+    min-height: 320px;
+  }
+
+  .manual-cols {
+    columns: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

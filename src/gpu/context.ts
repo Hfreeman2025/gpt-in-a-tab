@@ -67,11 +67,6 @@ const KERNELS = {
 } as const;
 
 export type KernelName = keyof typeof KERNELS;
-export const KERNEL_NAMES = Object.keys(KERNELS) as KernelName[];
-export const KERNEL_SOURCES: Readonly<Record<KernelName, string>> = Object.fromEntries(
-  KERNEL_NAMES.map((k) => [k, KERNELS[k].src]),
-) as Record<KernelName, string>;
-
 export type Constants = Readonly<Record<string, boolean>>;
 
 /** A buffer, or a 256-byte-aligned sub-range of one. */

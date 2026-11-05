@@ -51,7 +51,9 @@ async function main() {
   await g.prepare(PIPELINE_VARIANTS);
   const layout = paramLayout(cfg);
   const trainer = new GpuTrainer(g, cfg, train, corpus, initParams(layout, Number(q.get('init') ?? 1)), Number(q.get('seed') ?? 2026), steps);
-  log(`${name} probe=${q.get('dist') ?? 'uniform'}: vocab ${tok.size}, layers ${cfg.nLayer}, steps ${steps} (planned ${planned}), dropout ${dropout}, lr ${peakLr}, repeat every ${repeatEvery}`);
+  log(
+    `${name} probe=${q.get('dist') ?? 'uniform'}: vocab ${tok.size}, layers ${cfg.nLayer}, steps ${steps} (planned ${planned}), dropout ${dropout}, lr ${peakLr}, repeat every ${repeatEvery}`,
+  );
 
   // The probe: B sequences of T/2 random characters, each repeated once.
   const B = 4;
@@ -104,7 +106,10 @@ async function main() {
     trainer.submitStep();
     const ins = new Uint32Array(await g.read(trainer.model.inputs));
     const tg = new Uint32Array(await g.read(trainer.model.targets));
-    for (const b of [0, 1, 2, 3]) log(`row ${b}: ${Array.from(ins.subarray(b * T, b * T + 12)).join(',')} … ${Array.from(ins.subarray(b * T + half, b * T + half + 12)).join(',')} | targets ${Array.from(tg.subarray(b * T, b * T + 6)).join(',')}`);
+    for (const b of [0, 1, 2, 3])
+      log(
+        `row ${b}: ${Array.from(ins.subarray(b * T, b * T + 12)).join(',')} … ${Array.from(ins.subarray(b * T + half, b * T + half + 12)).join(',')} | targets ${Array.from(tg.subarray(b * T, b * T + 6)).join(',')}`,
+      );
     window.__exp = { done: true };
     return;
   }

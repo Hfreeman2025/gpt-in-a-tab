@@ -110,7 +110,14 @@ const metrics = await page.evaluate(() => window.__metrics);
 await page.waitForFunction(() => window.__metrics?.state === 'finished', null, { timeout: 300_000 });
 const finished = Date.now();
 await page.click('#mode-features');
-await page.waitForFunction(() => document.querySelectorAll('#feature-list .feature-row').length > 100 && /in [\d.]+ s on the GPU/.test(document.getElementById('sae-status').textContent) && !document.querySelector('.switch--live[aria-pressed="false"]'), null, { timeout: 300_000 });
+await page.waitForFunction(
+  () =>
+    document.querySelectorAll('#feature-list .feature-row').length > 100 &&
+    /in [\d.]+ s on the GPU/.test(document.getElementById('sae-status').textContent) &&
+    !document.querySelector('.switch--live[aria-pressed="false"]'),
+  null,
+  { timeout: 300_000 },
+);
 const dissected = (Date.now() - finished) / 1000;
 const saeFacts = await page.textContent('#sae-status');
 await browser.close();
@@ -120,19 +127,32 @@ let js = 0;
 for (const f of loaded.values()) if (fs.existsSync(f)) js += gz(f);
 const all = fs.readdirSync(path.join(dist, 'assets')).filter((f) => f.endsWith('.js'));
 const allJs = all.reduce((a, f) => a + gz(path.join(dist, 'assets', f)), 0);
-const css = fs.readdirSync(path.join(dist, 'assets')).filter((f) => f.endsWith('.css')).reduce((a, f) => a + gz(path.join(dist, 'assets', f)), 0);
+const css = fs
+  .readdirSync(path.join(dist, 'assets'))
+  .filter((f) => f.endsWith('.css'))
+  .reduce((a, f) => a + gz(path.join(dist, 'assets', f)), 0);
 
 const rec = (f) => fs.statSync(path.join(dist, 'recorded', f)).size;
 console.log(`first contentful paint     ${perf.fcp.toFixed(0)} ms`);
-console.log(`recorded run on the trace  ${perf.ref.toFixed(0)} ms after navigation (run.json ${kb(rec('run.json'))}, ${kb(gz(path.join(dist, 'recorded/run.json')))} gzipped)`);
+console.log(
+  `recorded run on the trace  ${perf.ref.toFixed(0)} ms after navigation (run.json ${kb(rec('run.json'))}, ${kb(gz(path.join(dist, 'recorded/run.json')))} gzipped)`,
+);
 console.log(`induction moment fired     ${(perf.moment / 1000).toFixed(1)} s after navigation`);
-console.log(`frames through the moment  ${mframes.length}: median ${mq(0.5).toFixed(1)} ms, p95 ${mq(0.95).toFixed(1)} ms, max ${mframes[mframes.length - 1].toFixed(1)} ms, ${mframes.filter((f) => f > 50).length} over 50 ms`);
+console.log(
+  `frames through the moment  ${mframes.length}: median ${mq(0.5).toFixed(1)} ms, p95 ${mq(0.95).toFixed(1)} ms, max ${mframes[mframes.length - 1].toFixed(1)} ms, ${mframes.filter((f) => f > 50).length} over 50 ms`,
+);
 console.log(`dissection after the run   ${dissected.toFixed(1)} s (${saeFacts.split('·')[1]?.trim() ?? ''})`);
-console.log(`recorded downloads         features.json ${kb(rec('features.json'))} (${kb(gz(path.join(dist, 'recorded/features.json')))} gzipped) at the first visit to Features; weights.bin ${kb(rec('weights.bin'))}, only on request`);
+console.log(
+  `recorded downloads         features.json ${kb(rec('features.json'))} (${kb(gz(path.join(dist, 'recorded/features.json')))} gzipped) at the first visit to Features; weights.bin ${kb(rec('weights.bin'))}, only on request`,
+);
 console.log(`largest contentful paint   ${perf.lcp.toFixed(0)} ms`);
 console.log(`model's text on screen     ${perf.firstText.toFixed(0)} ms after navigation`);
 console.log(`JavaScript loaded at start ${kb(js)} gzipped (${loaded.size} files: page, workers, the default text)`);
 console.log(`JavaScript in the build    ${kb(allJs)} gzipped, all texts included; CSS ${kb(css)}`);
-console.log(`live text behind the run   median ${lagAt(0.5)} steps (${((lagAt(0.5) / rate) * 1000).toFixed(0)} ms), p95 ${lagAt(0.95)} steps, at ${rate.toFixed(0)} steps/s; checkpoints every 50–100 steps here`);
-console.log(`frames while scrubbing     ${frames.length} in 5 s: median ${q(0.5).toFixed(1)} ms, p95 ${q(0.95).toFixed(1)} ms, max ${sorted[sorted.length - 1].toFixed(1)} ms, ${frames.filter((f) => f > 50).length} over 50 ms`);
+console.log(
+  `live text behind the run   median ${lagAt(0.5)} steps (${((lagAt(0.5) / rate) * 1000).toFixed(0)} ms), p95 ${lagAt(0.95)} steps, at ${rate.toFixed(0)} steps/s; checkpoints every 50–100 steps here`,
+);
+console.log(
+  `frames while scrubbing     ${frames.length} in 5 s: median ${q(0.5).toFixed(1)} ms, p95 ${q(0.95).toFixed(1)} ms, max ${sorted[sorted.length - 1].toFixed(1)} ms, ${frames.filter((f) => f > 50).length} over 50 ms`,
+);
 console.log(`training meanwhile         step ${metrics.completed}, ${Math.round(metrics.tokensPerSecond).toLocaleString('en-GB')} tokens/s`);

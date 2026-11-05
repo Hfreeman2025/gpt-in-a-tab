@@ -8,7 +8,7 @@ by this code.
 
 | what | version | licence | size | source |
 | --- | --- | --- | --- | --- |
-| This project's code | 0.1.0 | MIT (`LICENSE`) | about 120 KB of JavaScript, gzipped | this repository |
+| This project's code | 0.1.0 | MIT (`LICENSE`) | about 66 KB of JavaScript, gzipped (the texts load separately) | this repository |
 | Recorded run, `public/recorded/run.json`, `features.json` | 2 Nov 2026 | MIT, as part of this project | 94 KB and 223 KB | trained by this code, `npm run record` |
 | Recorded weights, `public/recorded/weights.bin` (model 817,920 and autoencoder 263,296 half-precision values) | 2 Nov 2026 | MIT, as part of this project | 2,162,432 bytes | trained by this code, `npm run record`; fetched only when asked for; not committed (model weights stay out of the repository) |
 | IBM Plex Sans (latin 400, 400 italic, 500, 600), IBM Plex Mono (latin 400, 600), IBM Plex Sans Condensed (latin 500, 600): eight woff2 files in `public/fonts/` | @fontsource 5.3.0 | SIL Open Font Licence 1.1 (`public/fonts/OFL.txt`, © 2019 IBM Corp.) | 166 KB | https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.3.0/files/ (and `ibm-plex-mono`, `ibm-plex-sans-condensed`), downloaded once by `npm run fetch:fonts`; served from this site, no font requests to anyone else |

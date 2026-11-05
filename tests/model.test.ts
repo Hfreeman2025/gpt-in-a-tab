@@ -17,28 +17,28 @@ describe('whole-model gradient check (float64)', () => {
     ['without dropout', NO_DROPOUT],
     ['with dropout (fixed masks)', dropoutStep(0.3, 1234)],
   ] as const)
-  it(`backward matches finite differences for every tensor, ${label}`, () => {
-    const layout = paramLayout(tiny);
-    const params = Float64Array.from(initParams(layout, 3));
-    // Larger weights than the 0.02 init so that every path carries a measurable gradient.
-    const rng = new Rng(9);
-    for (let i = 0; i < params.length; i++) if (params[i] !== 0 && params[i] !== 1) params[i] = rng.normal() * 0.4;
-    for (let i = 0; i < params.length; i++) if (params[i] === 0) params[i] = rng.normal() * 0.1;
-    const B = 2;
-    const T = tiny.context;
-    const model = new CpuGPT(tiny, params, B, T, Float64Array);
-    const tokens = Array.from({ length: B * T }, () => rng.int(tiny.vocabSize));
-    const targets = Array.from({ length: B * T }, () => rng.int(tiny.vocabSize));
-    model.forward(tokens, targets, drop);
-    model.backward();
-    const grads = Float64Array.from(model.grads);
-    for (const t of layout.tensors) {
-      const x = params.subarray(t.offset, t.offset + t.size);
-      const g = grads.subarray(t.offset, t.offset + t.size);
-      const err = gradCheck(() => model.forward(tokens, targets, drop), x, g, { maxChecks: 24, rng });
-      expect(err, t.name).toBeLessThan(1e-6);
-    }
-  });
+    it(`backward matches finite differences for every tensor, ${label}`, () => {
+      const layout = paramLayout(tiny);
+      const params = Float64Array.from(initParams(layout, 3));
+      // Larger weights than the 0.02 init so that every path carries a measurable gradient.
+      const rng = new Rng(9);
+      for (let i = 0; i < params.length; i++) if (params[i] !== 0 && params[i] !== 1) params[i] = rng.normal() * 0.4;
+      for (let i = 0; i < params.length; i++) if (params[i] === 0) params[i] = rng.normal() * 0.1;
+      const B = 2;
+      const T = tiny.context;
+      const model = new CpuGPT(tiny, params, B, T, Float64Array);
+      const tokens = Array.from({ length: B * T }, () => rng.int(tiny.vocabSize));
+      const targets = Array.from({ length: B * T }, () => rng.int(tiny.vocabSize));
+      model.forward(tokens, targets, drop);
+      model.backward();
+      const grads = Float64Array.from(model.grads);
+      for (const t of layout.tensors) {
+        const x = params.subarray(t.offset, t.offset + t.size);
+        const g = grads.subarray(t.offset, t.offset + t.size);
+        const err = gradCheck(() => model.forward(tokens, targets, drop), x, g, { maxChecks: 24, rng });
+        expect(err, t.name).toBeLessThan(1e-6);
+      }
+    });
 });
 
 describe('dropout masks', () => {
@@ -115,21 +115,21 @@ describe('decoder', () => {
 });
 
 const train: TrainConfig = {
-    batch: 4,
-    peakLr: 1e-2,
-    minLr: 1e-3,
-    warmupSteps: 10,
-    weightDecay: 0,
-    beta1: 0.9,
-    beta2: 0.99,
-    eps: 1e-8,
-    clipNorm: 1,
-    dropout: 0,
-    repeatEvery: 0,
-    targetSeconds: 1,
-    minSteps: 1,
-    maxSteps: 1000,
-  };
+  batch: 4,
+  peakLr: 1e-2,
+  minLr: 1e-3,
+  warmupSteps: 10,
+  weightDecay: 0,
+  beta1: 0.9,
+  beta2: 0.99,
+  eps: 1e-8,
+  clipNorm: 1,
+  dropout: 0,
+  repeatEvery: 0,
+  targetSeconds: 1,
+  minSteps: 1,
+  maxSteps: 1000,
+};
 
 describe('training', () => {
   it('overfits a tiny text: loss is driven near zero', () => {

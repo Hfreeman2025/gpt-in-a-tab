@@ -14,7 +14,7 @@ export interface EngineView {
   readonly profileError: string | null;
 }
 
-const KERNEL_NAMES: Record<string, string> = {
+const KERNEL_LABELS: Record<string, string> = {
   matmul: 'tiled matrix multiply',
   reduce: 'sum partial results',
   colsum: 'column sums (bias gradients)',
@@ -91,7 +91,9 @@ export function renderEngine(root: HTMLElement, v: EngineView, measure: () => vo
   );
 
   const total = info.memory.reduce((a, m) => a + m.bytes, 0);
-  root.append(col(info.kind === 'gpu' ? 'GPU buffers' : 'Memory', spec([...info.memory.map((m) => [m.category, bytes(m.bytes)] as const), ['total', bytes(total)]])));
+  root.append(
+    col(info.kind === 'gpu' ? 'GPU buffers' : 'Memory', spec([...info.memory.map((m) => [m.category, bytes(m.bytes)] as const), ['total', bytes(total)]])),
+  );
 
   const gflops = p && p.tokensPerSecond > 0 ? (info.flopsPerStep / tokensPerStep) * p.tokensPerSecond : 0;
   const deviceRows: [string, string][] = [
@@ -102,7 +104,10 @@ export function renderEngine(root: HTMLElement, v: EngineView, measure: () => vo
     ['time', p ? seconds(p.elapsed) : '–'],
   ];
   if (v.sixty) {
-    deviceRows.push(['at 60 seconds', `step ${int(v.sixty.step)}, loss ${v.sixty.loss.toFixed(3)}${v.sixty.heldOut !== null ? `, held out ${v.sixty.heldOut.toFixed(3)}` : ''}, ${sig3(v.sixty.tps)} tokens/s`]);
+    deviceRows.push([
+      'at 60 seconds',
+      `step ${int(v.sixty.step)}, loss ${v.sixty.loss.toFixed(3)}${v.sixty.heldOut !== null ? `, held out ${v.sixty.heldOut.toFixed(3)}` : ''}, ${sig3(v.sixty.tps)} tokens/s`,
+    ]);
   }
   root.append(col('Device', spec(deviceRows)));
 
@@ -117,7 +122,13 @@ export function renderEngine(root: HTMLElement, v: EngineView, measure: () => vo
     btn.disabled = v.profiling || !p;
     btn.addEventListener('click', measure);
     kernels.append(
-      h('p', { class: 'kernel-note' }, p ? 'Runs each dispatch of one step 24 times back to back and takes the average. Training pauses for about a second and carries on exactly where it was.' : 'Start training to time the kernels.'),
+      h(
+        'p',
+        { class: 'kernel-note' },
+        p
+          ? 'Runs each dispatch of one step 24 times back to back and takes the average. Training pauses for about a second and carries on exactly where it was.'
+          : 'Start training to time the kernels.',
+      ),
       btn,
     );
   } else {
@@ -125,14 +136,29 @@ export function renderEngine(root: HTMLElement, v: EngineView, measure: () => vo
     const groups = groupByKernel(prof);
     const max = Math.max(...groups.map((g) => g.ms));
     const table = h('table', { class: 'kernel-table' });
-    table.append(h('thead', {}, h('tr', {}, h('th', {}, 'kernel'), h('th', {}, 'dispatches'), h('th', {}, 'ms a step'), h('th', {}, 'share'), h('th', { class: 'bar-head' }, ''), h('th', {}, 'GFLOP/s'))));
+    table.append(
+      h(
+        'thead',
+        {},
+        h(
+          'tr',
+          {},
+          h('th', {}, 'kernel'),
+          h('th', {}, 'dispatches'),
+          h('th', {}, 'ms a step'),
+          h('th', {}, 'share'),
+          h('th', { class: 'bar-head' }, ''),
+          h('th', {}, 'GFLOP/s'),
+        ),
+      ),
+    );
     const body = h('tbody');
     for (const g of groups) {
       body.append(
         h(
           'tr',
           {},
-          h('td', {}, h('span', { class: 'kernel-name' }, KERNEL_NAMES[g.kernel] ?? g.kernel), h('span', { class: 'file' }, ` ${g.kernel}.wgsl`)),
+          h('td', {}, h('span', { class: 'kernel-name' }, KERNEL_LABELS[g.kernel] ?? g.kernel), h('span', { class: 'file' }, ` ${g.kernel}.wgsl`)),
           h('td', {}, String(g.calls)),
           h('td', {}, g.ms.toFixed(3)),
           h('td', {}, `${((100 * g.ms) / prof.kernelMs).toFixed(1)}%`),

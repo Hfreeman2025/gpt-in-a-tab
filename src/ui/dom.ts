@@ -6,7 +6,11 @@ export function $<T extends HTMLElement = HTMLElement>(id: string): T {
 
 type Attrs = Record<string, string | number | boolean | undefined>;
 
-export function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Attrs = {}, ...children: (Node | string | null | undefined | false)[]): HTMLElementTagNameMap[K] {
+export function h<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  attrs: Attrs = {},
+  ...children: (Node | string | null | undefined | false)[]
+): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (v === undefined || v === false) continue;
@@ -48,12 +52,4 @@ export function bytes(b: number): string {
   if (b < 1024) return `${b} B`;
   if (b < 1024 ** 2) return `${(b / 1024).toFixed(1)} KiB`;
   return `${(b / 1024 ** 2).toFixed(1)} MiB`;
-}
-
-/** How a character is shown when it would otherwise be invisible. */
-export function glyph(ch: string): string {
-  if (ch === ' ') return '␣';
-  if (ch === '\n') return '↵';
-  if (ch === '\t') return '⇥';
-  return ch;
 }

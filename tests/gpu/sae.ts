@@ -73,10 +73,17 @@ async function main() {
   }
   const t3 = performance.now();
   const res = await sae.analyse();
-  log(`analysed ${res.positions} positions in ${((performance.now() - t3) / 1000).toFixed(2)} s: fvu ${res.fvu.toFixed(4)}  L0 ${res.l0.toFixed(2)}  dead ${(res.dead * 100).toFixed(1)}%`);
-  const dens = res.features.map((f) => f.density).filter((x) => x > 0).sort((a, b) => a - b);
+  log(
+    `analysed ${res.positions} positions in ${((performance.now() - t3) / 1000).toFixed(2)} s: fvu ${res.fvu.toFixed(4)}  L0 ${res.l0.toFixed(2)}  dead ${(res.dead * 100).toFixed(1)}%`,
+  );
+  const dens = res.features
+    .map((f) => f.density)
+    .filter((x) => x > 0)
+    .sort((a, b) => a - b);
   const qq = (p: number) => dens[Math.floor(p * (dens.length - 1))];
-  log(`density quantiles (live): 10% ${qq(0.1).toExponential(1)}  50% ${qq(0.5).toExponential(1)}  90% ${qq(0.9).toExponential(1)}  max ${qq(1).toExponential(1)}`);
+  log(
+    `density quantiles (live): 10% ${qq(0.1).toExponential(1)}  50% ${qq(0.5).toExponential(1)}  90% ${qq(0.9).toExponential(1)}  max ${qq(1).toExponential(1)}`,
+  );
   const show = (pos: number) => {
     const a = Math.max(0, pos - 18);
     const s = tok.decode(Array.from(corpus.tokens.subarray(a, pos + 4)));

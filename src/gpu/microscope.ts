@@ -42,7 +42,13 @@ export class Microscope {
     this.out = g.floats('analysis results', 2 * (2 * this.heads + 4), 'microscope');
     const r = copyRanges(T, model.probePeriod);
     // Each run writes two numbers into its slot: [first range, second range].
-    this.copyLoss = g.dispatch('copy loss', 'probe_loss', [model.B, T, r.first[0], r.first[1], r.second[0], r.second[1], 0, 2], [model.losses, this.slot, this.out], [1, 1, 1]);
+    this.copyLoss = g.dispatch(
+      'copy loss',
+      'probe_loss',
+      [model.B, T, r.first[0], r.first[1], r.second[0], r.second[1], 0, 2],
+      [model.losses, this.slot, this.out],
+      [1, 1, 1],
+    );
     this.textLoss = g.dispatch('text loss', 'probe_loss', [model.B, T, 0, T, 0, T, 0, 2], [model.losses, this.slot, this.out], [1, 1, 1]);
     g.flushUniforms();
   }

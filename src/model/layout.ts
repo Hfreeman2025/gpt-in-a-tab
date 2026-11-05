@@ -70,12 +70,14 @@ export function paramLayout(cfg: ModelConfig): ParamLayout {
   const tensors: TensorSpec[] = [];
   let offset = 0;
   let count = 0;
-  const add = (decay: boolean) => ([name, shape, init]: [string, number[], Init]) => {
-    const size = shape.reduce((a, b) => a * b, 1);
-    tensors.push({ name, shape, size, offset, decay, init });
-    offset = roundUp(offset + size, ALIGN);
-    count += size;
-  };
+  const add =
+    (decay: boolean) =>
+    ([name, shape, init]: [string, number[], Init]) => {
+      const size = shape.reduce((a, b) => a * b, 1);
+      tensors.push({ name, shape, size, offset, decay, init });
+      offset = roundUp(offset + size, ALIGN);
+      count += size;
+    };
   decayed.forEach(add(true));
   const decayEnd = offset;
   plain.forEach(add(false));

@@ -69,7 +69,13 @@ export function record(input: RecordInput, d: Dissection): void {
       evals: input.trace.evals.map(([s, v]) => [s, r4(v)] as const),
       lr: thin(input.trace.lr, 200).map(([s, v]) => [s, v] as const),
     },
-    probes: input.probes.map((p) => ({ step: p.step, copyFirst: r4(p.copyFirst), copySecond: r4(p.copySecond), prefix: p.prefix.map(r4), prev: p.prev.map(r4) })),
+    probes: input.probes.map((p) => ({
+      step: p.step,
+      copyFirst: r4(p.copyFirst),
+      copySecond: r4(p.copySecond),
+      prefix: p.prefix.map(r4),
+      prev: p.prev.map(r4),
+    })),
     moment: input.moment,
     sample: input.sample,
     dissection: {
@@ -77,7 +83,16 @@ export function record(input: RecordInput, d: Dissection): void {
       knockouts: { baseText: r4(d.knockouts.baseText), baseCopy: r4(d.knockouts.baseCopy), text: d.knockouts.text.map(r4), copy: d.knockouts.copy.map(r4) },
       patching: { clean: r4(d.patching.clean), corrupt: r4(d.patching.corrupt), patched: d.patching.patched.map(r4), recovered: d.patching.recovered.map(r4) },
       patterns,
-      sae: { opts: d.sae.opts, curve: d.sae.curve.map((c) => ({ step: c.step, mse: r4(c.mse), l0: r3(c.l0) })), fvu: r4(r.fvu), l0: r3(r.l0), dead: r4(r.dead), scale: r.scale, positions: r.positions, seconds: r3(d.sae.seconds) },
+      sae: {
+        opts: d.sae.opts,
+        curve: d.sae.curve.map((c) => ({ step: c.step, mse: r4(c.mse), l0: r3(c.l0) })),
+        fvu: r4(r.fvu),
+        l0: r3(r.l0),
+        dead: r4(r.dead),
+        scale: r.scale,
+        positions: r.positions,
+        seconds: r3(d.sae.seconds),
+      },
     },
     weights: { file: 'weights.bin', bytes: bytes.length, model: input.weights.length, sae: sae.length },
   };

@@ -12,7 +12,12 @@ export function randn(n: number, rng: Rng, scale = 1): Float64Array {
  * Returns the worst relative error, normalised by the gradient's overall scale so tiny
  * entries do not dominate.
  */
-export function gradCheck(loss: () => number, x: Float64Array, analytic: ArrayLike<number>, opts: { eps?: number; maxChecks?: number; rng?: Rng } = {}): number {
+export function gradCheck(
+  loss: () => number,
+  x: Float64Array,
+  analytic: ArrayLike<number>,
+  opts: { eps?: number; maxChecks?: number; rng?: Rng } = {},
+): number {
   const eps = opts.eps ?? 1e-6;
   const idx: number[] = [];
   if (opts.maxChecks !== undefined && opts.maxChecks < x.length) {

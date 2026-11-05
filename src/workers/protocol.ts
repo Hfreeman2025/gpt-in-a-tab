@@ -75,7 +75,14 @@ export type TrainerRequest =
   | { readonly t: 'snapshot'; readonly req: number };
 
 export type TrainerResponse =
-  | { readonly t: 'stats'; readonly steps: readonly StepStats[]; readonly evals: readonly EvalStats[]; readonly probes: readonly ProbeReading[]; readonly completed: number; readonly busyMs: number }
+  | {
+      readonly t: 'stats';
+      readonly steps: readonly StepStats[];
+      readonly evals: readonly EvalStats[];
+      readonly probes: readonly ProbeReading[];
+      readonly completed: number;
+      readonly busyMs: number;
+    }
   | { readonly t: 'snapshot'; readonly req: number; readonly step: number; readonly params: Float32Array }
   | { readonly t: 'finished'; readonly step: number }
   | { readonly t: 'error'; readonly message: string };

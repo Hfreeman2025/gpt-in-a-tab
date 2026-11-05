@@ -6,8 +6,9 @@ import { fileURLToPath } from 'node:url';
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
- * Playwright is not a dependency of this project. It is resolved from this project if you have
- * installed it, or from the directory in PLAYWRIGHT_FROM (any project with playwright installed).
+ * Playwright comes with the dev dependencies, but its browsers are a separate download
+ * (`npx playwright install chromium`). If this project's copy cannot be loaded, PLAYWRIGHT_FROM
+ * can name another project directory that has Playwright installed.
  */
 export function loadPlaywright() {
   const dirs = [root, process.env.PLAYWRIGHT_FROM].filter(Boolean);
@@ -18,7 +19,7 @@ export function loadPlaywright() {
       // try the next location
     }
   }
-  throw new Error('Playwright not found. Run `npm i -D playwright && npx playwright install chromium`, or set PLAYWRIGHT_FROM to a project that has it.');
+  throw new Error('Playwright not found. Run `npm ci && npx playwright install chromium`, or set PLAYWRIGHT_FROM to a project that has it.');
 }
 
 /**
@@ -55,7 +56,17 @@ async function adapterInfo(page) {
  * Launch Chromium with a real GPU. Tries headless first (new headless mode), and falls back to a
  * headed window when headless cannot reach the GPU. Returns which mode worked.
  */
-export async function launchWithWebGPU(url, { headedOnly = false, viewport = { width: 1440, height: 900 }, deviceScaleFactor = 2, colorScheme = 'light', reducedMotion = 'no-preference', hasTouch = false } = {}) {
+export async function launchWithWebGPU(
+  url,
+  {
+    headedOnly = false,
+    viewport = { width: 1440, height: 900 },
+    deviceScaleFactor = 2,
+    colorScheme = 'light',
+    reducedMotion = 'no-preference',
+    hasTouch = false,
+  } = {},
+) {
   const { chromium } = loadPlaywright();
   const attempts = headedOnly ? [{ headless: false }] : [{ headless: true, channel: 'chromium' }, { headless: false }];
   const notes = [];
@@ -73,7 +84,17 @@ export async function launchWithWebGPU(url, { headedOnly = false, viewport = { w
   throw new Error(`No hardware WebGPU adapter in Chromium. ${notes.join('; ')}`);
 }
 
-export async function launchPlain(url, { viewport = { width: 1440, height: 900 }, deviceScaleFactor = 2, colorScheme = 'light', reducedMotion = 'no-preference', isMobile = false, hasTouch = false } = {}) {
+export async function launchPlain(
+  url,
+  {
+    viewport = { width: 1440, height: 900 },
+    deviceScaleFactor = 2,
+    colorScheme = 'light',
+    reducedMotion = 'no-preference',
+    isMobile = false,
+    hasTouch = false,
+  } = {},
+) {
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch({ headless: true, channel: 'chromium', args: WEBGPU_ARGS });
   const context = await browser.newContext({ viewport, deviceScaleFactor, colorScheme, reducedMotion, isMobile, hasTouch });

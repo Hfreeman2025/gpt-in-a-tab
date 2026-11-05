@@ -145,7 +145,16 @@ export class SamplerPool {
     }
   }
 
-  sample(cfg: ModelConfig, weights: WeightsRef, prompt: readonly number[], length: number, temperature: number, seed: number, priority: number, edit?: GenerationEdit): Ticket<Sample> {
+  sample(
+    cfg: ModelConfig,
+    weights: WeightsRef,
+    prompt: readonly number[],
+    length: number,
+    temperature: number,
+    seed: number,
+    priority: number,
+    edit?: GenerationEdit,
+  ): Ticket<Sample> {
     return this.submit<Sample>({ t: 'sample', cfg, weights, prompt, length, temperature, seed, ...(edit ? { edit } : {}) }, priority);
   }
 

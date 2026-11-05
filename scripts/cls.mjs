@@ -17,13 +17,20 @@ for (const [name, viewport] of [
       for (const e of list.getEntries()) {
         if (e.hadRecentInput) continue;
         window.__cls.total += e.value;
-        window.__cls.entries.push({ t: Math.round(e.startTime), v: e.value, from: (e.sources ?? []).map((s) => s.node?.id || s.node?.className || s.node?.nodeName || '?').join(' ') });
+        window.__cls.entries.push({
+          t: Math.round(e.startTime),
+          v: e.value,
+          from: (e.sources ?? []).map((s) => s.node?.id || s.node?.className || s.node?.nodeName || '?').join(' '),
+        });
       }
     }).observe({ type: 'layout-shift', buffered: true });
   });
   await page.goto(`${url}/`);
   await page.waitForTimeout(6000);
-  const cls = await page.evaluate(() => ({ ...window.__cls, fonts: [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}${f.style === 'italic' ? 'i' : ''}`) }));
+  const cls = await page.evaluate(() => ({
+    ...window.__cls,
+    fonts: [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}${f.style === 'italic' ? 'i' : ''}`),
+  }));
   worst = Math.max(worst, cls.total);
   console.log(`${name}: CLS ${cls.total.toFixed(4)} over ${cls.entries.length} shifts; fonts loaded: ${cls.fonts.join(', ')}`);
   for (const e of cls.entries.slice(0, 6)) console.log(`   ${e.t} ms  ${e.v.toFixed(4)}  ${e.from}`);

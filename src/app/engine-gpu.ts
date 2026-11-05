@@ -9,7 +9,18 @@ import { Microscope } from '../gpu/microscope';
 import { GpuSae, saeDefaults } from '../gpu/sae';
 import { sampleOffsets } from '../model/data';
 import { Rng } from '../model/rng';
-import { Clock, type DissectProgress, type Dissection, Emitter, type Engine, type EngineEvent, type EngineInfo, PROBE_EVERY, type RunState, type Snapshot } from './engine';
+import {
+  Clock,
+  type DissectProgress,
+  type Dissection,
+  Emitter,
+  type Engine,
+  type EngineEvent,
+  type EngineInfo,
+  PROBE_EVERY,
+  type RunState,
+  type Snapshot,
+} from './engine';
 
 /** Steps kept queued on the GPU: enough to never starve it, few enough to stay responsive. */
 const IN_FLIGHT = 3;
@@ -72,7 +83,15 @@ export class GpuEngine implements Engine {
     acq.device.addEventListener('uncapturederror', this.onGpuError);
   }
 
-  static async create(acq: Acquired, cfg: ModelConfig, train: TrainConfig, corpus: Corpus, initial: Float32Array, seed: number, totalSteps: number): Promise<GpuEngine> {
+  static async create(
+    acq: Acquired,
+    cfg: ModelConfig,
+    train: TrainConfig,
+    corpus: Corpus,
+    initial: Float32Array,
+    seed: number,
+    totalSteps: number,
+  ): Promise<GpuEngine> {
     const gpu = new Gpu(acq.device);
     await gpu.prepare(PIPELINE_VARIANTS);
     return new GpuEngine(gpu, acq, cfg, train, corpus, initial, seed, totalSteps);

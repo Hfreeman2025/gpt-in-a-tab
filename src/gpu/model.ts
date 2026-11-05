@@ -289,9 +289,21 @@ export class GpuGPT {
     const ranges = copyRanges(T, probe.period);
     this.probeScores = [
       ...layers.map((a, l) =>
-        g.dispatch(`h${l} induction test`, 'probe_attn', [B, T, H, probe.period, 2 + 2 * H * l, stride, 0, 0], [a.probs, this.probeSlot, this.probeOut], [H, 1, 1]),
+        g.dispatch(
+          `h${l} induction test`,
+          'probe_attn',
+          [B, T, H, probe.period, 2 + 2 * H * l, stride, 0, 0],
+          [a.probs, this.probeSlot, this.probeOut],
+          [H, 1, 1],
+        ),
       ),
-      g.dispatch('copy losses', 'probe_loss', [B, T, ranges.first[0], ranges.first[1], ranges.second[0], ranges.second[1], 0, stride], [this.losses, this.probeSlot, this.probeOut], [1, 1, 1]),
+      g.dispatch(
+        'copy losses',
+        'probe_loss',
+        [B, T, ranges.first[0], ranges.first[1], ranges.second[0], ranges.second[1], 0, stride],
+        [this.losses, this.probeSlot, this.probeOut],
+        [1, 1, 1],
+      ),
     ];
     this.forward = fwd;
 
@@ -315,9 +327,25 @@ export class GpuGPT {
       const dw = (n: string) => G(t(`h${l}.${n}`));
       bwd.push(
         op.dropoutMask(g, `h${l} mlp dropout bwd`, gres, drop, dmask, N * C, siteMlp(l)),
-        ...op.linearBackward(g, `h${l} fc2 bwd`, { dy: dmask, x: a.fcAct, W: w('mlp.proj.w'), dx: big, dW: dw('mlp.proj.w'), db: dw('mlp.proj.b'), scratch: parts }, N, 4 * C, C, dummy),
+        ...op.linearBackward(
+          g,
+          `h${l} fc2 bwd`,
+          { dy: dmask, x: a.fcAct, W: w('mlp.proj.w'), dx: big, dW: dw('mlp.proj.w'), db: dw('mlp.proj.b'), scratch: parts },
+          N,
+          4 * C,
+          C,
+          dummy,
+        ),
         op.geluBackward(g, `h${l} gelu bwd`, a.fcPre, big, N * 4 * C),
-        ...op.linearBackward(g, `h${l} fc bwd`, { dy: big, x: a.ln2, W: w('mlp.fc.w'), dx: tmp, dW: dw('mlp.fc.w'), db: dw('mlp.fc.b'), scratch: parts }, N, C, 4 * C, dummy),
+        ...op.linearBackward(
+          g,
+          `h${l} fc bwd`,
+          { dy: big, x: a.ln2, W: w('mlp.fc.w'), dx: tmp, dW: dw('mlp.fc.w'), db: dw('mlp.fc.b'), scratch: parts },
+          N,
+          C,
+          4 * C,
+          dummy,
+        ),
         ...op.layerNormBackward(
           g,
           `h${l} ln2 bwd`,
@@ -326,9 +354,25 @@ export class GpuGPT {
           C,
         ),
         op.dropoutMask(g, `h${l} attn dropout bwd`, gres, drop, dmask, N * C, siteAttn(l)),
-        ...op.linearBackward(g, `h${l} proj bwd`, { dy: dmask, x: a.attnY, W: w('attn.proj.w'), dx: tmp2, dW: dw('attn.proj.w'), db: dw('attn.proj.b'), scratch: parts }, N, C, C, dummy),
+        ...op.linearBackward(
+          g,
+          `h${l} proj bwd`,
+          { dy: dmask, x: a.attnY, W: w('attn.proj.w'), dx: tmp2, dW: dw('attn.proj.w'), db: dw('attn.proj.b'), scratch: parts },
+          N,
+          C,
+          C,
+          dummy,
+        ),
         ...op.attentionBackward(g, `h${l} attn bwd`, { dy: tmp2, qkv: a.qkv, probs: a.probs, dScores: attScratch, dqkv }, shape, dummy),
-        ...op.linearBackward(g, `h${l} qkv bwd`, { dy: dqkv, x: a.ln1, W: w('attn.w'), dx: tmp, dW: dw('attn.w'), db: dw('attn.b'), scratch: parts }, N, C, 3 * C, dummy),
+        ...op.linearBackward(
+          g,
+          `h${l} qkv bwd`,
+          { dy: dqkv, x: a.ln1, W: w('attn.w'), dx: tmp, dW: dw('attn.w'), db: dw('attn.b'), scratch: parts },
+          N,
+          C,
+          3 * C,
+          dummy,
+        ),
         ...op.layerNormBackward(
           g,
           `h${l} ln1 bwd`,
@@ -349,7 +393,13 @@ export class GpuGPT {
     this.optimiser = [
       g.dispatch('grad norm partial', 'grad_norm', [layout.total, perGroup, 0, 0], [this.grads, normParts], [normGroups, 1, 1]),
       g.dispatch('grad norm', 'grad_norm_final', [normGroups, STATS.gradNorm, STATS.currentNorm, 0], [normParts, this.trainStep, this.stats], [1, 1, 1]),
-      g.dispatch('adamw', 'adamw', [layout.total, layout.decayEnd, STATS.clip, 0], [this.trainStep, this.grads, this.stats, this.params, this.m, this.v], gridThreads(layout.total)),
+      g.dispatch(
+        'adamw',
+        'adamw',
+        [layout.total, layout.decayEnd, STATS.clip, 0],
+        [this.trainStep, this.grads, this.stats, this.params, this.m, this.v],
+        gridThreads(layout.total),
+      ),
     ];
 
     const gatherTrain = g.dispatch('batch', 'gather', [B, T, V, 0], [this.corpus, this.trainStep, this.inputs, this.targets], gridThreads(N));

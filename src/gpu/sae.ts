@@ -201,7 +201,8 @@ export class GpuSae {
     const wDec = this.ref(L.wDec, F * C);
     const bDec = this.ref(L.bDec, C);
     const gr = (o: number, n: number) => slice(this.grads, o, n);
-    const rows = (seed: number, first: number) => g.dispatch('sae batch', 'sae_rows', [B, C, this.nRows, seed, { f: this.scale }, first, 0, 0], [acts, this.header, this.x], gridThreads(B * C));
+    const rows = (seed: number, first: number) =>
+      g.dispatch('sae batch', 'sae_rows', [B, C, this.nRows, seed, { f: this.scale }, first, 0, 0], [acts, this.header, this.x], gridThreads(B * C));
     const forward = [
       op.linear(g, 'sae encode', { x: this.x, W: wEnc, b: bEnc, y: this.f }, B, C, F, dummy),
       g.dispatch('sae relu', 'sae_relu', [B * F, 0, 0, 0], [this.f], gridThreads(B * F)),
@@ -211,9 +212,25 @@ export class GpuSae {
       rows(0x5ae, 0),
       ...forward,
       g.dispatch('sae dx̂', 'sae_grad', [B * C, 0, { f: 2 / B }, 0], [this.xhat, this.x, this.dxhat], gridThreads(B * C)),
-      ...op.linearBackward(g, 'sae decode bwd', { dy: this.dxhat, x: this.f, W: wDec, dx: this.df, dW: gr(L.wDec, F * C), db: gr(L.bDec, C), scratch: this.parts }, B, F, C, dummy),
+      ...op.linearBackward(
+        g,
+        'sae decode bwd',
+        { dy: this.dxhat, x: this.f, W: wDec, dx: this.df, dW: gr(L.wDec, F * C), db: gr(L.bDec, C), scratch: this.parts },
+        B,
+        F,
+        C,
+        dummy,
+      ),
       g.dispatch('sae df', 'sae_grad', [B * F, 1, { f: this.opts.lambda / B }, 0], [this.f, this.f, this.df], gridThreads(B * F)),
-      ...op.linearBackward(g, 'sae encode bwd', { dy: this.df, x: this.x, W: wEnc, dx: null, dW: gr(L.wEnc, C * F), db: gr(L.bEnc, F), scratch: this.parts }, B, C, F, dummy),
+      ...op.linearBackward(
+        g,
+        'sae encode bwd',
+        { dy: this.df, x: this.x, W: wEnc, dx: null, dW: gr(L.wEnc, C * F), db: gr(L.bEnc, F), scratch: this.parts },
+        B,
+        C,
+        F,
+        dummy,
+      ),
       g.dispatch('sae adam', 'adamw', [L.total, 0, 0, 0], [this.header, this.grads, this.clip, this.params, this.m, this.v], gridThreads(L.total)),
       g.dispatch('sae decoder norm', 'sae_norm', [F, C, 0, 0], [wDec], [Math.ceil(F / 64), 1, 1]),
     ];
@@ -224,7 +241,13 @@ export class GpuSae {
     this.analyseRows = (first) => [
       rows(0, first),
       ...forward,
-      g.dispatch('sae top contexts', 'sae_stats', [B, F, this.opts.topK, first, 1, 0, 0, 0], [this.f, this.sums, this.topv, this.topi], [Math.ceil(F / 64), 1, 1]),
+      g.dispatch(
+        'sae top contexts',
+        'sae_stats',
+        [B, F, this.opts.topK, first, 1, 0, 0, 0],
+        [this.f, this.sums, this.topv, this.topi],
+        [Math.ceil(F / 64), 1, 1],
+      ),
       g.dispatch('sae error', 'sae_err', [B * C, 0, 0, 0], [this.xhat, this.x, this.err], [1, 1, 1]),
     ];
     g.flushUniforms();
