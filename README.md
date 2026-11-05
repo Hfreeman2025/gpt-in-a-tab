@@ -1,6 +1,6 @@
 # GPT in a tab
 
-<!-- hf-badge -->
+[![Harry Freeman](docs/brand/hf-badge.svg)](https://harryfreeman.dev)
 
 A small transformer trains in your browser, on your GPU, on hand-written WebGPU kernels. In
 under a minute you watch the moment it learns to copy. Then you take it apart: knock out heads,
@@ -265,7 +265,8 @@ Designed, specified and reviewed by Harry Freeman; built with AI coding agents.
 
 ## Licence
 
-MIT. Copyright (c) 2026 Harry Freeman. See `LICENSE`.
+MIT. Copyright (c) 2026 Harry Freeman. See `LICENSE`. The MIT licence covers the code, not the
+maker's mark in `docs/brand/`; see `docs/brand/LICENSE.md`.
 
 Third-party material is listed in `LICENCES.md`:
 - the texts are public domain, from Project Gutenberg ebooks 1041, 11, 1524, 1533, 1513, 1531 and
